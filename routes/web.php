@@ -1,9 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Inertia\Inertia;
 
-Route::get('/', function () {
-    return Inertia::render('welcome');
-})->name('home');
-
+Route::get('/', [\App\Http\Controllers\WebsiteController::class, 'home'])->name('home');
+Route::get('/check-transaction', [\App\Http\Controllers\WebsiteController::class, 'checkTransaction'])->name('check-transaction');
+Route::get('/products/{productSlug}', [\App\Http\Controllers\WebsiteController::class, 'detailVoucher'])->name('detail-voucher');
