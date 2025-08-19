@@ -15,9 +15,11 @@ class Game extends Model
 
     protected $fillable = [
         'id',
-        'logo_game',
-        'nama_game',
-        'perusahaan_game',
+        'logo',
+        'name',
+        'company',
+        'how_to',
+        'topup_data'
     ];
 
     public function categoryVoucher()

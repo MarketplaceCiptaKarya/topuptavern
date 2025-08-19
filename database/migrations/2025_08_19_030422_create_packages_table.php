@@ -11,10 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('category_voucher', function (Blueprint $table) {
+        Schema::create('packages', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->uuid('game_id');
+            $table->uuid('category_voucher_id');
             $table->string('name');
+            $table->decimal('price', 12, 2);
+            $table->integer('quantity')->default(0);
             $table->timestamps();
             $table->softDeletes();
         });
@@ -25,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('category_voucher');
+        Schema::dropIfExists('packages');
     }
 };
