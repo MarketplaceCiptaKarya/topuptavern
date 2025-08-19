@@ -25,6 +25,7 @@ const css = `
 .ql-toolbar {
     border: 1px solid var(--border);
     border-radius: 4px 4px 0 0;
+    color: var(--text-light);
 }
 .ql-container {
     border: 1px solid var(--border);
@@ -34,6 +35,14 @@ const css = `
 .ql-tooltip {
     left: 0 !important;
     top: 0 !important;
+}
+.dark .ql-toolbar svg {
+    filter: invert(1) !important; /* invert toolbar icons */
+}
+
+.dark .ql-toolbar .ql-picker-label,
+.dark .ql-toolbar .ql-picker-options .ql-picker-item {
+    color: var(--text-light) !important;
 }
 `;
 
