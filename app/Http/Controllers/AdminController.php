@@ -226,6 +226,12 @@ class AdminController extends Controller
         return redirect()->back();
     }
 
+    public function destroyGame(Game $game)
+    {
+        $game->delete();
+        return redirect()->back();
+    }
+
 
     public function logout(Request $request)
     {
