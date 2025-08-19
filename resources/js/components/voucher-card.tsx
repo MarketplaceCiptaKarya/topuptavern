@@ -21,6 +21,7 @@ export default function VoucherCard({
                     data-selected={isSelected}
                     {...rest}
                     className={cn(
+                        'h-full w-full',
                         'flex flex-col gap-6 rounded-xl border bg-card py-6 text-card-foreground shadow-sm',
                         'flex cursor-pointer items-center justify-center rounded-md border text-sm font-medium shadow-sm transition-all',
                         // Base color styles
