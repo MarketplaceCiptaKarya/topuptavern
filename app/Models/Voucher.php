@@ -11,9 +11,9 @@ class Voucher extends Model
 {
     use HasFactory, SoftDeletes, HasUuid;
 
-    protected $table = 'voucher';
+    protected $table = 'vouchers';
 
-    protected $fillable = ['id', 'package_id', 'voucher_code', 'used'];
+    protected $fillable = ['id', 'package_id', 'voucher_code', 'used_at'];
 
     public function package()
     {

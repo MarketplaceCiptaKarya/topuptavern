@@ -11,12 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('package', function (Blueprint $table) {
+        Schema::create('games', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->uuid('category_voucher_id');
-            $table->string('nama');
-            $table->decimal('harga', 12, 2);
-            $table->integer('jumlah')->default(0);
+            $table->string('logo')->nullable();
+            $table->string('name');
+            $table->string('company');
+            $table->string('topup_data')->nullable();
+            $table->text('how_to')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });
@@ -27,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('package');
+        Schema::dropIfExists('games');
     }
 };

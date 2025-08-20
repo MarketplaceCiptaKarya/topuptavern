@@ -11,7 +11,7 @@ class CategoryVoucher extends Model
 {
     use HasFactory, SoftDeletes, HasUuid;
 
-    protected $table = 'category_voucher';
+    protected $table = 'category_vouchers';
 
     protected $fillable = ['id', 'game_id', 'name'];
 
