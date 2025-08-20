@@ -8,12 +8,10 @@ use App\Models\Game;
 use App\Models\Package;
 use App\Models\Product;
 use App\Models\ProductGallery;
-use App\Models\Voucher;
 use Database\Seeders\CategorySeeder;
 use Database\Seeders\StaticWebsiteDatumSeeder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
 
@@ -88,16 +86,16 @@ class AdminController extends Controller
     public function storeGame(Request $request)
     {
         $validated = $request->validate([
-            'logo_game'       => 'nullable|image|max:2048',
-            'nama_game'       => 'required|string|max:255',
+            'logo_game' => 'nullable|image|max:2048',
+            'nama_game' => 'required|string|max:255',
             'perusahaan_game' => 'required|string|max:255',
             'howTo' => 'nullable',
             'topupData' => 'array',
-            'vouchers'        => 'nullable|array',
+            'vouchers' => 'nullable|array',
             'vouchers.*.name' => 'nullable|string|max:255',
             'vouchers.*.inputs' => 'array',
             'vouchers.*.inputs.*.packageName' => 'nullable|string|max:255',
-            'vouchers.*.inputs.*.amount'      => 'required|numeric|min:0',
+            'vouchers.*.inputs.*.amount' => 'required|numeric|min:0',
         ]);
 
         $path = null;
@@ -129,14 +127,14 @@ class AdminController extends Controller
         foreach ($request->vouchers as $voucherCategory) {
             $category = CategoryVoucher::create([
                 'game_id' => $game->id,
-                'name'    => $voucherCategory['name'],
+                'name' => $voucherCategory['name'],
             ]);
 
             foreach ($voucherCategory['inputs'] as $package) {
                 Package::create([
                     'category_voucher_id' => $category->id,
-                    'name'   => $package['packageName'],
-                    'price'  => $package['amount'],
+                    'name' => $package['packageName'],
+                    'price' => $package['amount'],
                     'quantity' => 0,
                 ]);
             }
@@ -157,16 +155,16 @@ class AdminController extends Controller
     public function updateGame(Game $game, Request $request)
     {
         $validated = $request->validate([
-            'logo_game'       => 'nullable|image|max:2048',
-            'nama_game'       => 'required|string|max:255',
+            'logo_game' => 'nullable|image|max:2048',
+            'nama_game' => 'required|string|max:255',
             'perusahaan_game' => 'required|string|max:255',
-            'howTo'           => 'nullable',
-            'topupData'       => 'array',
-            'vouchers'        => 'nullable|array',
+            'howTo' => 'nullable',
+            'topupData' => 'array',
+            'vouchers' => 'nullable|array',
             'vouchers.*.name' => 'nullable|string|max:255',
             'vouchers.*.inputs' => 'array',
             'vouchers.*.inputs.*.packageName' => 'nullable|string|max:255',
-            'vouchers.*.inputs.*.amount'      => 'required|numeric|min:0',
+            'vouchers.*.inputs.*.amount' => 'required|numeric|min:0',
         ]);
 
         // Handle logo
@@ -194,11 +192,11 @@ class AdminController extends Controller
         $slug = Str::slug($request->nama_game) . '-' . Str::random(5);
         // Update game
         $game->update([
-            'logo'       => $path,
-            'name'       => $validated['nama_game'],
+            'logo' => $path,
+            'name' => $validated['nama_game'],
             'slug' => $slug,
-            'company'    => $validated['perusahaan_game'],
-            'how_to'     => $validated['howTo'],
+            'company' => $validated['perusahaan_game'],
+            'how_to' => $validated['howTo'],
             'topup_data' => $topupDataString,
         ]);
 
@@ -213,14 +211,14 @@ class AdminController extends Controller
             foreach ($request->vouchers as $voucherCategory) {
                 $category = CategoryVoucher::create([
                     'game_id' => $game->id,
-                    'name'    => $voucherCategory['name'],
+                    'name' => $voucherCategory['name'],
                 ]);
 
                 foreach ($voucherCategory['inputs'] as $package) {
                     Package::create([
                         'category_voucher_id' => $category->id,
-                        'name'     => $package['packageName'],
-                        'price'    => $package['amount'],
+                        'name' => $package['packageName'],
+                        'price' => $package['amount'],
                         'quantity' => 0,
                     ]);
                 }

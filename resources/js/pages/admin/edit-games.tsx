@@ -1,14 +1,13 @@
-import PreviewMedia from "@/components/custom/preview-media";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import AdminLayout from "@/layouts/custom/admin-layout";
-import RichTextEditor from "@/layouts/custom/rich-text-editor";
-import { Game, SharedData } from "@/types";
+import PreviewMedia from '@/components/preview-media';
+import RichTextEditor from '@/components/rich-text-editor';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import AdminLayout from '@/layouts/admin-layout';
+import { Game, SharedData } from '@/types';
 import { router, useForm, usePage } from '@inertiajs/react';
-import { Label } from "@radix-ui/react-label";
-import { Trash2 } from "lucide-react";
-import { Key } from "react";
+import { Label } from '@radix-ui/react-label';
+import { Trash2 } from 'lucide-react';
 
 type VoucherInput = {
     id: string;
@@ -34,147 +33,128 @@ export default function EditGames() {
         }
     >().props;
 
-    console.log('game', game)
+    console.log('game', game);
 
     const { submit, setData, data, errors, reset } = useForm({
         logo_game: File | null,
-        nama_game: game.name || "",
-        perusahaan_game: game.company || "",
-        howTo: game.how_to || "",
+        nama_game: game.name || '',
+        perusahaan_game: game.company || '',
+        howTo: game.how_to || '',
         topupData: game.topup_data
-            ? game.topup_data.split(",").map((name: string) => ({
-                id: crypto.randomUUID(),
-                name: name.trim(),
-            }))
-            : [{ id: crypto.randomUUID(), name: "" }],
+            ? game.topup_data.split(',').map((name: string) => ({
+                  id: crypto.randomUUID(),
+                  name: name.trim(),
+              }))
+            : [{ id: crypto.randomUUID(), name: '' }],
         vouchers: game.category_voucher?.length
             ? game.category_voucher.map((cv: any) => ({
-                id: cv.id,
-                name: cv.name || "",
-                inputs: cv.packages?.length
-                    ? cv.packages.map((pkg: any) => ({
-                        id: pkg.id, // use package id if it exists, else randomUUID
-                        packageName: pkg.name || "",
-                        amount: pkg.price || 0,
-                    }))
-                    : [{ id: crypto.randomUUID(), packageName: "", amount: 0 }],
-            }))
-            : [{
-                id: crypto.randomUUID(),
-                name: "",
-                inputs: [{ id: crypto.randomUUID(), packageName: "", amount: 0 }],
-            }],
+                  id: cv.id,
+                  name: cv.name || '',
+                  inputs: cv.packages?.length
+                      ? cv.packages.map((pkg: any) => ({
+                            id: pkg.id, // use package id if it exists, else randomUUID
+                            packageName: pkg.name || '',
+                            amount: pkg.price || 0,
+                        }))
+                      : [{ id: crypto.randomUUID(), packageName: '', amount: 0 }],
+              }))
+            : [
+                  {
+                      id: crypto.randomUUID(),
+                      name: '',
+                      inputs: [{ id: crypto.randomUUID(), packageName: '', amount: 0 }],
+                  },
+              ],
     });
-
-
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
-            setData("logo_game", e.target.files[0]);
+            setData('logo_game', e.target.files[0]);
         }
     };
 
     const addVoucher = () => {
-        setData("vouchers", [
+        setData('vouchers', [
             ...data.vouchers,
             {
                 id: crypto.randomUUID(),
-                name: "",
-                inputs: [
-                    { id: crypto.randomUUID(), packageName: "", amount: 0 },
-                ],
+                name: '',
+                inputs: [{ id: crypto.randomUUID(), packageName: '', amount: 0 }],
             },
         ]);
     };
 
     const addTopupData = () => {
-        setData("topupData", [
-            ...data.topupData,
-            { id: crypto.randomUUID(), name: "" },
-        ]);
+        setData('topupData', [...data.topupData, { id: crypto.randomUUID(), name: '' }]);
     };
 
     const updateTopupData = (id: string, value: string) => {
         setData(
-            "topupData",
-            data.topupData.map(t =>
-                t.id === id ? { ...t, name: value } : t
-            )
+            'topupData',
+            data.topupData.map((t) => (t.id === id ? { ...t, name: value } : t)),
         );
     };
 
     const deleteTopupData = (id: string) => {
-        setData("topupData", data.topupData.filter(t => t.id !== id));
+        setData(
+            'topupData',
+            data.topupData.filter((t) => t.id !== id),
+        );
     };
 
     const deleteVoucher = (voucherId: string) => {
         setData(
-            "vouchers",
-            data.vouchers.filter((v) => v.id !== voucherId)
+            'vouchers',
+            data.vouchers.filter((v) => v.id !== voucherId),
         );
     };
 
     const updateVoucherName = (voucherId: string, value: string) => {
         setData(
-            "vouchers",
-            data.vouchers.map((v) =>
-                v.id === voucherId ? { ...v, name: value } : v
-            )
+            'vouchers',
+            data.vouchers.map((v) => (v.id === voucherId ? { ...v, name: value } : v)),
         );
     };
 
     const addInput = (voucherId: string) => {
         setData(
-            "vouchers",
+            'vouchers',
             data.vouchers.map((v) =>
                 v.id === voucherId
                     ? {
-                        ...v,
-                        inputs: [
-                            ...v.inputs,
-                            { id: crypto.randomUUID(), packageName: "", amount: 0 },
-                        ],
-                    }
-                    : v
-            )
+                          ...v,
+                          inputs: [...v.inputs, { id: crypto.randomUUID(), packageName: '', amount: 0 }],
+                      }
+                    : v,
+            ),
         );
     };
 
-    const updateInput = (
-        voucherId: string,
-        inputId: string,
-        field: "packageName" | "amount",
-        value: string | number
-    ) => {
+    const updateInput = (voucherId: string, inputId: string, field: 'packageName' | 'amount', value: string | number) => {
         setData(
-            "vouchers",
+            'vouchers',
             data.vouchers.map((v) =>
                 v.id === voucherId
                     ? {
-                        ...v,
-                        inputs: v.inputs.map((i: { id: string; }) =>
-                            i.id === inputId
-                                ? {
-                                    ...i,
-                                    [field]:
-                                        field === "amount" ? Number(value) : (value as string),
-                                }
-                                : i
-                        ),
-                    }
-                    : v
-            )
+                          ...v,
+                          inputs: v.inputs.map((i: { id: string }) =>
+                              i.id === inputId
+                                  ? {
+                                        ...i,
+                                        [field]: field === 'amount' ? Number(value) : (value as string),
+                                    }
+                                  : i,
+                          ),
+                      }
+                    : v,
+            ),
         );
     };
 
     const deleteInput = (voucherId: string, inputId: string) => {
         setData(
-            "vouchers",
-            data.vouchers.map((v) =>
-                v.id === voucherId
-                    ? { ...v, inputs: v.inputs.filter((i: { id: string; }) => i.id !== inputId) }
-                    : v
-            )
+            'vouchers',
+            data.vouchers.map((v) => (v.id === voucherId ? { ...v, inputs: v.inputs.filter((i: { id: string }) => i.id !== inputId) } : v)),
         );
     };
 
@@ -184,10 +164,10 @@ export default function EditGames() {
         // Combine useForm data + vouchers into one object
         const payload = {
             ...data,
-            vouchers: data.vouchers.map(v => ({
+            vouchers: data.vouchers.map((v) => ({
                 id: v.id,
                 name: v.name,
-                inputs: v.inputs.map((i: { id: any; packageName: any; amount: any; }) => ({
+                inputs: v.inputs.map((i: { id: any; packageName: any; amount: any }) => ({
                     id: i.id,
                     packageName: i.packageName,
                     amount: Number(i.amount) || 0,
@@ -196,7 +176,7 @@ export default function EditGames() {
         };
 
         // Debug log
-        console.log("Form Payload:", payload);
+        console.log('Form Payload:', payload);
 
         // // If you also want to inspect files individually
         // if (data.logo_game) {
@@ -224,19 +204,12 @@ export default function EditGames() {
                             {/* Game Form */}
                             <div className="space-y-2">
                                 <PreviewMedia
-                                    initialMedia={
-                                        data.logo_game
-                                            ? { url: URL.createObjectURL(data.logo_game), file: data.logo_game }
-                                            : null
-                                    }
-                                    onChange={(newFile) => setData("logo_game", newFile)}
-
-                                    error={
-                                        Object.keys(errors)
-                                            .filter((key) => key.startsWith('logo_game'))
-                                            .map((key) => (errors as Record<string, string>)[key])
-                                            .join(', ')
-                                    }
+                                    initialMedia={data.logo_game ? { url: URL.createObjectURL(data.logo_game), file: data.logo_game } : null}
+                                    onChange={(newFile) => setData('logo_game', newFile)}
+                                    error={Object.keys(errors)
+                                        .filter((key) => key.startsWith('logo_game'))
+                                        .map((key) => (errors as Record<string, string>)[key])
+                                        .join(', ')}
                                 />
 
                                 <Input
@@ -251,13 +224,15 @@ export default function EditGames() {
                                     type="text"
                                     placeholder="Game Company"
                                     value={data.perusahaan_game}
-                                    onChange={(e) => setData("perusahaan_game", e.target.value)}
+                                    onChange={(e) => setData('perusahaan_game', e.target.value)}
                                 />
                                 {errors.perusahaan_game && <p className="text-sm text-red-500">{errors.perusahaan_game}</p>}
 
-                                <Button type="button" onClick={addTopupData}>+ Top Up Data</Button>
+                                <Button type="button" onClick={addTopupData}>
+                                    + Top Up Data
+                                </Button>
 
-                                <div className="space-y-2 mt-3">
+                                <div className="mt-3 space-y-2">
                                     {data.topupData.map((item) => (
                                         <div key={item.id} className="flex items-center gap-2">
                                             <Input
@@ -266,12 +241,7 @@ export default function EditGames() {
                                                 value={item.name}
                                                 onChange={(e) => updateTopupData(item.id, e.target.value)}
                                             />
-                                            <Button
-                                                type="button"
-                                                variant="secondary"
-                                                size="icon"
-                                                onClick={() => deleteTopupData(item.id)}
-                                            >
+                                            <Button type="button" variant="secondary" size="icon" onClick={() => deleteTopupData(item.id)}>
                                                 <Trash2 />
                                             </Button>
                                         </div>
@@ -284,64 +254,59 @@ export default function EditGames() {
                                 {errors.howTo && <p className="text-sm text-red-500">{errors.howTo}</p>}
                             </div>
                             <div>
-                                <Label className="grid w-full max-w-xs items-center gap-3 my-3">
-                                    Voucher
-                                </Label>
+                                <Label className="my-3 grid w-full max-w-xs items-center gap-3">Voucher</Label>
 
                                 {data.vouchers.map((voucher, vIndex) => (
-                                    <div key={voucher.id} className="border rounded p-3 mb-3 space-y-2">
-                                        <div className="flex justify-between items-center">
+                                    <div key={voucher.id} className="mb-3 space-y-2 rounded border p-3">
+                                        <div className="flex items-center justify-between">
                                             <Input
                                                 placeholder="Voucher name (optional)"
                                                 value={voucher.name}
-                                                onChange={e => updateVoucherName(voucher.id, e.target.value)}
+                                                onChange={(e) => updateVoucherName(voucher.id, e.target.value)}
                                             />
                                             {vIndex > 0 && (
-                                                <Button
-                                                    variant="secondary"
-                                                    size="sm"
-                                                    onClick={() => deleteVoucher(voucher.id)}
-                                                >
+                                                <Button variant="secondary" size="sm" onClick={() => deleteVoucher(voucher.id)}>
                                                     Delete Voucher
                                                 </Button>
                                             )}
                                         </div>
 
                                         {/* Inputs inside voucher */}
-                                        {voucher.inputs.map((input: {
-                                            id: string;
-                                            packageName: string;
-                                            amount: number;
-                                        }, iIndex: number) => (
-                                            <div key={input.id} className="flex gap-2 items-center">
-                                                <Input
-                                                    placeholder="Package name"
-                                                    value={input.packageName}
-                                                    onChange={e =>
-                                                        updateInput(voucher.id, input.id, "packageName", e.target.value)
-                                                    }
-                                                />
-                                                <Input
-                                                    placeholder="Amount"
-                                                    type="number"
-                                                    min={0}
-                                                    value={input.amount}
-                                                    onChange={e =>
-                                                        updateInput(voucher.id, input.id, "amount", String(e.target.value))
-                                                    }
-                                                />
-                                                {iIndex > 0 && (
-                                                    <Button
-                                                        variant="secondary"
-                                                        type="button"
-                                                        size="icon"
-                                                        onClick={() => deleteInput(voucher.id, input.id)}
-                                                    >
-                                                        <Trash2 />
-                                                    </Button>
-                                                )}
-                                            </div>
-                                        ))}
+                                        {voucher.inputs.map(
+                                            (
+                                                input: {
+                                                    id: string;
+                                                    packageName: string;
+                                                    amount: number;
+                                                },
+                                                iIndex: number,
+                                            ) => (
+                                                <div key={input.id} className="flex items-center gap-2">
+                                                    <Input
+                                                        placeholder="Package name"
+                                                        value={input.packageName}
+                                                        onChange={(e) => updateInput(voucher.id, input.id, 'packageName', e.target.value)}
+                                                    />
+                                                    <Input
+                                                        placeholder="Amount"
+                                                        type="number"
+                                                        min={0}
+                                                        value={input.amount}
+                                                        onChange={(e) => updateInput(voucher.id, input.id, 'amount', String(e.target.value))}
+                                                    />
+                                                    {iIndex > 0 && (
+                                                        <Button
+                                                            variant="secondary"
+                                                            type="button"
+                                                            size="icon"
+                                                            onClick={() => deleteInput(voucher.id, input.id)}
+                                                        >
+                                                            <Trash2 />
+                                                        </Button>
+                                                    )}
+                                                </div>
+                                            ),
+                                        )}
 
                                         {/* Add input inside voucher */}
                                         <Button type="button" size="sm" onClick={() => addInput(voucher.id)}>
@@ -349,7 +314,9 @@ export default function EditGames() {
                                         </Button>
                                     </div>
                                 ))}
-                                <Button type="button" onClick={addVoucher}>+ Voucher</Button>
+                                <Button type="button" onClick={addVoucher}>
+                                    + Voucher
+                                </Button>
                             </div>
                         </CardContent>
                         <CardFooter>
@@ -357,7 +324,7 @@ export default function EditGames() {
                         </CardFooter>
                     </Card>
                 </form>
-            </AdminLayout >
+            </AdminLayout>
         </>
     );
 }

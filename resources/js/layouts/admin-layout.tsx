@@ -1,3 +1,4 @@
+import { AppSidebar } from '@/components/app-sidebar';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -9,7 +10,6 @@ import {
 import { Separator } from '@/components/ui/separator';
 import { SidebarInset, SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import { Toaster } from '@/components/ui/sonner';
-import { AppSidebar } from '@/layouts/custom/admin-layout-component/app-sidebar';
 import { router } from '@inertiajs/react';
 import { User } from 'lucide-react';
 
@@ -44,7 +44,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                                         onClick={() => {
                                             router.post(route('admin.logout'));
                                         }}
-                                        className="text-destructive data-[highlighted]:bg-destructive/80 data-[highlighted]:text-destructive-foreground"
+                                        className="data-[highlighted]:text-destructive-foreground text-destructive data-[highlighted]:bg-destructive/80"
                                     >
                                         Logout
                                     </DropdownMenuItem>
