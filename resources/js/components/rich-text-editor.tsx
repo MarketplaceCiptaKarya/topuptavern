@@ -42,7 +42,10 @@ const css = `
 
 .dark .ql-toolbar .ql-picker-label,
 .dark .ql-toolbar .ql-picker-options .ql-picker-item {
-    color: var(--text-light) !important;
+    color: var(--background) !important;
+}
+.dark .ql-toolbar .ql-picker-label::before{
+    color: var(--foreground) !important;
 }
 `;
 
