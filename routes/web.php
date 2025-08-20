@@ -19,6 +19,14 @@ Route::prefix('admin')->group(function () {
         Route::post('/games/{game}', [\App\Http\Controllers\AdminController::class, 'updateGame'])->name('admin.games.update');
         Route::delete('/games/{game}', [\App\Http\Controllers\AdminController::class, 'destroyGame'])->name('admin.games.destroy');
 
+        Route::get('/vouchers', [\App\Http\Controllers\AdminController::class, 'vouchers'])->name('admin.vouchers');
+        Route::get('/vouchers/create', [\App\Http\Controllers\AdminController::class, 'createVoucher'])->name('admin.vouchers.create');
+        Route::get('/voucher/{package}/edit', [\App\Http\Controllers\AdminController::class, 'editVoucher'])->name('admin.vouchers.edit');
+
+        Route::post('/vouchers', [\App\Http\Controllers\AdminController::class, 'storeVoucher'])->name('admin.vouchers.store');
+        // Route::post('/games/{game}', [\App\Http\Controllers\AdminController::class, 'updateGame'])->name('admin.games.update');
+        // Route::delete('/games/{game}', [\App\Http\Controllers\AdminController::class, 'destroyGame'])->name('admin.games.destroy');
+
         Route::get('/codes', [\App\Http\Controllers\AdminController::class, 'codes'])->name('admin.codes');
         Route::post('/codes', [\App\Http\Controllers\AdminController::class, 'storeCode'])->name('admin.codes.store');
 
@@ -29,4 +37,3 @@ Route::prefix('admin')->group(function () {
 Route::get('/', [\App\Http\Controllers\WebsiteController::class, 'home'])->name('home');
 Route::get('/check-transaction', [\App\Http\Controllers\WebsiteController::class, 'checkTransaction'])->name('check-transaction');
 Route::get('/products/{productSlug}', [\App\Http\Controllers\WebsiteController::class, 'detailVoucher'])->name('detail-voucher');
-

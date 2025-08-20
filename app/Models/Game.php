@@ -19,7 +19,8 @@ class Game extends Model
         'name',
         'company',
         'how_to',
-        'topup_data'
+        'topup_data',
+        'slug'
     ];
 
     public function categoryVoucher()

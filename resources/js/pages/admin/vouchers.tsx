@@ -6,18 +6,18 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { useDebouncedValue } from "@/hooks/use-debounced";
 import AdminLayout from "@/layouts/custom/admin-layout";
 import { dateFormatter } from "@/lib/global";
-import { Game, PaginatedResponse, SharedData } from "@/types";
+import { Game, Package, PaginatedResponse, SharedData, Voucher } from "@/types";
 import { router, usePage, Link } from "@inertiajs/react";
-import { Pencil, Trash2 } from "lucide-react";
+import { Pencil } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
-export default function ShowGames() {
-    const { games, search } = usePage<SharedData & { games: PaginatedResponse<Game>; search: string }>().props;
+export default function ShowVouchers() {
+    const { packages, search } = usePage<SharedData & { packages: PaginatedResponse<Package>; search: string }>().props;
     const [input, setInput] = useState<string>(search);
     const initialLoad = useRef<boolean>(true);
     const debouncedValue = useDebouncedValue(input, 500);
-
+    console.log('packages', packages.data)
     useEffect(() => {
         if (initialLoad.current) {
             initialLoad.current = false;
@@ -25,7 +25,7 @@ export default function ShowGames() {
         }
 
         router.get(
-            route('admin.games'),
+            route('admin.vouchers'),
             { search: debouncedValue },
             {
                 preserveState: true,
@@ -37,7 +37,7 @@ export default function ShowGames() {
         <>
             <Card>
                 <CardHeader>
-                    <CardTitle>View Games</CardTitle>
+                    <CardTitle>View Vouchers</CardTitle>
                     <CardDescription>List of games</CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -48,37 +48,37 @@ export default function ShowGames() {
                         <Table>
                             <TableHeader>
                                 <TableRow>
-                                    <TableHead>Name</TableHead>
-                                    <TableHead>Companny</TableHead>
-                                    <TableHead>Created At</TableHead>
-                                    <TableHead>Updated At</TableHead>
+                                    <TableHead>Game Name</TableHead>
+                                    <TableHead>Category</TableHead>
+                                    <TableHead>Package Name</TableHead>
+                                    {/* <TableHead>Code</TableHead> */}
                                     <TableHead>Action</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {games.data.map((game) => (
-                                    <TableRow key={game.id}>
-                                        <TableCell>{game.name}</TableCell>
-                                        <TableCell>{game.company}</TableCell>
-                                        <TableCell>{dateFormatter.format(new Date(game.created_at))}</TableCell>
-                                        <TableCell>{dateFormatter.format(new Date(game.updated_at))}</TableCell>
+                                {packages.data.map((p) => (
+                                    <TableRow key={p.id}>
+                                        <TableCell>{p.category_voucher?.game?.name ?? '-'}</TableCell>
+                                        <TableCell>{p.category_voucher?.name ?? '-'}</TableCell>
+                                        <TableCell>{p.name ?? '-'}</TableCell>
+                                        {/* <TableCell>{voucher.voucher_code}</TableCell> */}
                                         <TableCell>
                                             <span className="flex flex-row gap-2">
                                                 <Button size="sm" variant="outline" asChild>
-                                                    <Link href={route('admin.games.edit', game.id)}><Pencil />Edit</Link>
+                                                    <Link href={route('admin.vouchers.edit', p.id)}><Pencil /> Edit</Link>
                                                 </Button>
-                                                <Button
+                                                {/* <Button
                                                     size="sm"
                                                     onClick={() => {
-                                                        router.delete(route('admin.games.destroy', game.id), {
+                                                        router.delete(route('admin.games.destroy', voucher.id), {
                                                             onSuccess: () => {
                                                                 toast.success('Game deleted successfully');
                                                             },
                                                         });
                                                     }}
                                                 >
-                                                    <Trash2 />Delete
-                                                </Button>
+                                                    Delete
+                                                </Button> */}
                                             </span>
                                         </TableCell>
                                     </TableRow>
@@ -88,36 +88,36 @@ export default function ShowGames() {
                         <div>
                             <Pagination>
                                 <PaginationContent>
-                                    {games.current_page > 1 && (
+                                    {packages.current_page > 1 && (
                                         <>
                                             <PaginationItem>
-                                                <PaginationPrevious href={games.prev_page_url || ''} />
+                                                <PaginationPrevious href={packages.prev_page_url || ''} />
                                             </PaginationItem>
                                         </>
                                     )}
                                     <PaginationItem>
                                         <PaginationLink href={'#'} isActive>
-                                            {games.current_page}
+                                            {packages.current_page}
                                         </PaginationLink>
                                     </PaginationItem>
-                                    {games.current_page < games.last_page && (
+                                    {packages.current_page < packages.last_page && (
                                         <>
                                             <PaginationItem>
-                                                <PaginationLink href={games.next_page_url || ''}>{games.current_page + 1}</PaginationLink>
+                                                <PaginationLink href={packages.next_page_url || ''}>{packages.current_page + 1}</PaginationLink>
                                             </PaginationItem>
 
-                                            {games.current_page < games.last_page - 1 && (
+                                            {packages.current_page < packages.last_page - 1 && (
                                                 <PaginationItem>
                                                     <PaginationEllipsis />
                                                 </PaginationItem>
                                             )}
 
                                             <PaginationItem>
-                                                <PaginationLink href={games.last_page_url || ''}>{games.last_page}</PaginationLink>
+                                                <PaginationLink href={packages.last_page_url || ''}>{packages.last_page}</PaginationLink>
                                             </PaginationItem>
 
                                             <PaginationItem>
-                                                <PaginationNext href={games.next_page_url || ''} />
+                                                <PaginationNext href={packages.next_page_url || ''} />
                                             </PaginationItem>
                                         </>
                                     )}
@@ -131,4 +131,4 @@ export default function ShowGames() {
     )
 }
 
-ShowGames.layout = (page: React.ReactNode) => <AdminLayout>{page}</AdminLayout>;
+ShowVouchers.layout = (page: React.ReactNode) => <AdminLayout>{page}</AdminLayout>;

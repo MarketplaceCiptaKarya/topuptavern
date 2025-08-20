@@ -45,15 +45,15 @@ const data = {
             title: 'Master Voucher',
             url: '#',
             items: [
-                {
-                    title: 'Add Voucher',
-                    url: '#',
-                    // url: route('admin.products.create'),
-                },
+                // {
+                //     title: 'Add Voucher',
+                //     // url: '#',
+                //     url: route('admin.vouchers.create'),
+                // },
                 {
                     title: 'View Vouchers',
-                    url: '#',
-                    // url: route('admin.products'),
+                    // url: '#',
+                    url: route('admin.vouchers'),
                 },
             ],
         },

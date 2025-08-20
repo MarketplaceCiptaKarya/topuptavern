@@ -6,7 +6,7 @@ import AdminLayout from "@/layouts/custom/admin-layout";
 import RichTextEditor from "@/layouts/custom/rich-text-editor";
 import { router, useForm, usePage } from '@inertiajs/react';
 import { Label } from "@radix-ui/react-label";
-import { Trash2 } from "lucide-react";
+import { Plus, Save, Trash2 } from "lucide-react";
 import { useState } from "react";
 
 type VoucherInput = {
@@ -252,7 +252,7 @@ export default function AddGames() {
                                 />
                                 {errors.perusahaan_game && <p className="text-sm text-red-500">{errors.perusahaan_game}</p>}
 
-                                <Button type="button" onClick={addTopupData}>+ Top Up Data</Button>
+                                <Button type="button" onClick={addTopupData}>< Plus /> Top Up Data</Button>
 
                                 <div className="space-y-2 mt-3">
                                     {data.topupData.map((item) => (
@@ -299,7 +299,7 @@ export default function AddGames() {
                                                     size="sm"
                                                     onClick={() => deleteVoucher(voucher.id)}
                                                 >
-                                                    Delete Voucher
+                                                    <Trash2 /> Delete Voucher
                                                 </Button>
                                             )}
                                         </div>
@@ -338,15 +338,15 @@ export default function AddGames() {
 
                                         {/* Add input inside voucher */}
                                         <Button type="button" size="sm" onClick={() => addInput(voucher.id)}>
-                                            Tambah
+                                            <Plus /> Tambah
                                         </Button>
                                     </div>
                                 ))}
-                                <Button type="button" onClick={addVoucher}>+ Voucher</Button>
+                                <Button type="button" onClick={addVoucher}><Plus /> Voucher</Button>
                             </div>
                         </CardContent>
                         <CardFooter>
-                            <Button type="submit">Save</Button>
+                            <Button type="submit"><Save />Save</Button>
                         </CardFooter>
                     </Card>
                 </form>

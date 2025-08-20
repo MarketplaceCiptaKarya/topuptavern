@@ -8,6 +8,7 @@ use App\Models\Game;
 use App\Models\Package;
 use App\Models\Product;
 use App\Models\ProductGallery;
+use App\Models\Voucher;
 use Database\Seeders\CategorySeeder;
 use Database\Seeders\StaticWebsiteDatumSeeder;
 use Illuminate\Http\Request;
@@ -115,9 +116,11 @@ class AdminController extends Controller
         }
 
         // dd($validated['howTo']);
+        $slug = Str::slug($request->nama_game) . '-' . Str::random(5);
         $game = Game::create([
-            'logo'       => $path,
-            'name'       => $validated['nama_game'],
+            'logo' => $path,
+            'name' => $validated['nama_game'],
+            'slug' => $slug,
             'company' => $validated['perusahaan_game'],
             'how_to' => $validated['howTo'],
             'topup_data' => $topupDataString,
@@ -188,11 +191,12 @@ class AdminController extends Controller
         if (!empty($validated['topupData'])) {
             $topupDataString = implode(', ', array_map(fn($item) => $item['name'], $validated['topupData']));
         }
-
+        $slug = Str::slug($request->nama_game) . '-' . Str::random(5);
         // Update game
         $game->update([
             'logo'       => $path,
             'name'       => $validated['nama_game'],
+            'slug' => $slug,
             'company'    => $validated['perusahaan_game'],
             'how_to'     => $validated['howTo'],
             'topup_data' => $topupDataString,
@@ -229,6 +233,71 @@ class AdminController extends Controller
     public function destroyGame(Game $game)
     {
         $game->delete();
+        return redirect()->back();
+    }
+
+    public function vouchers(Request $request)
+    {
+        $search = $request->query('search', '');
+
+        $packages = \App\Models\Package::query()
+            ->where(function ($query) use ($search) {
+                $query->where('name', 'ilike', '%' . $search . '%')
+                    ->orWhereHas('categoryVoucher', function ($cq) use ($search) {
+                        $cq->where('name', 'ilike', '%' . $search . '%')
+                            ->orWhereHas('game', function ($gq) use ($search) {
+                                $gq->where('name', 'ilike', '%' . $search . '%');
+                            });
+                    })
+                    ->orWhereHas('vouchers', function ($vq) use ($search) {
+                        $vq->where('voucher_code', 'ilike', '%' . $search . '%');
+                    });
+            })
+            ->whereNull('deleted_at')
+            ->with([
+                'categoryVoucher.game',
+            ])
+            ->orderBy('created_at', 'desc')
+            ->paginate(10)
+            ->withQueryString();
+
+        return Inertia::render('admin/vouchers', [
+            'packages' => $packages,
+            'search' => $search,
+        ]);
+    }
+
+    public function createVoucher()
+    {
+        $games = Game::whereNotNull('deleted_at')->get();
+        return Inertia::render('admin/add-vouchers', [
+            'games' => $games,
+        ]);
+    }
+
+    public function editVoucher(Package $package)
+    {
+        $package->load(['categoryVoucher.game']);
+        return Inertia::render('admin/add-vouchers', [
+            'package' => $package,
+        ]);
+    }
+
+    public function storeVoucher(Request $request)
+    {
+        $validated = $request->validate([
+            'package_id' => 'required|exists:packages,id',
+            'vouchers' => 'required|array|min:1',
+            'vouchers.*' => 'required|string|max:255|distinct',
+        ]);
+
+        foreach ($validated['vouchers'] as $code) {
+            \App\Models\Voucher::create([
+                'package_id' => $validated['package_id'],
+                'voucher_code' => $code,
+            ]);
+        }
+
         return redirect()->back();
     }
 

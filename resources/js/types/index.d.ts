@@ -79,3 +79,32 @@ export type Game = {
     updated_at: string;
     deleted_at: string | null;
 };
+
+export type CategoryVoucher = {
+    id: string;
+    name?: string;
+    created_at: string;
+    updated_at: string;
+    game: Game | null; // in case the relation is missing
+};
+
+export type Package = {
+    id: string;
+    name: string;
+    price: number;
+    quantity: number;
+    created_at: string;
+    updated_at: string;
+    category_voucher: CategoryVoucher | null;
+};
+
+export type Voucher = {
+    id: string;
+    package_id: string;
+    voucher_code: string;
+    used_at: string | null;
+    created_at: string;
+    updated_at: string;
+    deleted_at: string | null;
+    package: Package | null;      // 👈 updated to nested structure
+};
