@@ -17,12 +17,6 @@ type VoucherInput = {
     amount: number;
 };
 
-type Voucher = {
-    id: string;
-    name: string;
-    inputs: VoucherInput[];
-};
-
 export default function AddGames() {
     const { submit, setData, data, errors, reset } = useForm<{
         game_logo: File | null;
