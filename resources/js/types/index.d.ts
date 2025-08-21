@@ -85,7 +85,8 @@ export type CategoryVoucher = {
     name?: string;
     created_at: string;
     updated_at: string;
-    game: Game | null; // in case the relation is missing
+    game: Game | null;
+    packages: Package[] | null;
 };
 
 export type Package = {

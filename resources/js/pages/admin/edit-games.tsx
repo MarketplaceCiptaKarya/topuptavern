@@ -5,10 +5,16 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import AdminLayout from "@/layouts/admin-layout";
-import { Game, SharedData } from "@/types";
+import { CategoryVoucher, Game, Package, SharedData } from "@/types";
 import { router, useForm, usePage } from '@inertiajs/react';
 import { Label } from "@radix-ui/react-label";
 import { Plus, Save, Trash2 } from "lucide-react";
+
+type VoucherInput = {
+    id: string;
+    packageName: string;
+    amount: number;
+};
 
 export default function EditGames() {
     const { game } = usePage<
@@ -33,11 +39,11 @@ export default function EditGames() {
         })(),
 
         vouchers: game.category_voucher?.length
-            ? game.category_voucher.map((cv: any) => ({
+            ? game.category_voucher.map((cv: CategoryVoucher) => ({
                 id: cv.id,
                 name: cv.name || "",
                 inputs: cv.packages?.length
-                    ? cv.packages.map((pkg: any) => ({
+                    ? cv.packages.map((pkg: Package) => ({
                         id: pkg.id,
                         packageName: pkg.name || "",
                         amount: pkg.price || 0,
@@ -50,12 +56,6 @@ export default function EditGames() {
                 inputs: [{ id: crypto.randomUUID(), packageName: "", amount: 0 }],
             }],
     });
-
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files && e.target.files[0]) {
-            setData("game_logo", e.target.files[0]);
-        }
-    };
 
     const addVoucher = () => {
         setData('vouchers', [
@@ -112,14 +112,19 @@ export default function EditGames() {
         );
     };
 
-    const updateInput = (voucherId: string, inputId: string, field: 'packageName' | 'amount', value: string | number) => {
+    const updateInput = (
+        voucherId: string,
+        inputId: string,
+        field: "packageName" | "amount",
+        value: string | number
+    ) => {
         setData(
-            'vouchers',
+            "vouchers",
             data.vouchers.map((v) =>
                 v.id === voucherId
                     ? {
                         ...v,
-                        inputs: v.inputs.map((i: { id: string; }) =>
+                        inputs: v.inputs.map((i: VoucherInput) =>
                             i.id === inputId
                                 ? {
                                     ...i,
@@ -153,7 +158,7 @@ export default function EditGames() {
             vouchers: data.vouchers.map((v) => ({
                 id: v.id,
                 name: v.name,
-                inputs: v.inputs.map((i: { id: any; packageName: any; amount: any; }) => ({
+                inputs: v.inputs.map((i: { id: string; packageName: string; amount: number; }) => ({
                     id: i.id,
                     packageName: i.packageName,
                     amount: Number(i.amount) || 0,
