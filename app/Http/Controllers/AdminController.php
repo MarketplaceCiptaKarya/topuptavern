@@ -88,11 +88,11 @@ class AdminController extends Controller
     public function storeGame(Request $request)
     {
         $validated = $request->validate([
-            'logo_game'       => 'nullable|image|max:2048',
-            'nama_game'       => 'required|string|max:255',
-            'perusahaan_game' => 'required|string|max:255',
-            'howTo' => 'nullable',
-            'topupData' => 'array',
+            'game_logo'       => 'nullable|image|max:2048',
+            'game_name'       => 'required|string|max:255',
+            'game_company'    => 'required|string|max:255',
+            'how_to'     => 'nullable|string',
+            'topup_data' => 'array',
             'vouchers'        => 'nullable|array',
             'vouchers.*.name' => 'nullable|string|max:255',
             'vouchers.*.inputs' => 'array',
@@ -100,48 +100,45 @@ class AdminController extends Controller
             'vouchers.*.inputs.*.amount'      => 'required|numeric|min:0',
         ]);
 
+        // handle file upload if exists
         $path = null;
-        if ($request->hasFile('logo_game')) {
-            $mediaFile = $request->file('logo_game');
-
-            $filename = Str::slug($request->nama_game) . '-' . Str::random(5) . '.' . $mediaFile->getClientOriginalExtension();
-
-            // Simpan ke storage/app/public/games
+        if ($request->hasFile('game_logo')) {
+            $mediaFile = $request->file('game_logo');
+            $filename = Str::slug($validated['game_name']) . '-' . Str::random(5) . '.' . $mediaFile->getClientOriginalExtension();
             $path = $mediaFile->storeAs('games', $filename, 'public');
         }
 
-        $topupDataString = null;
-        if (!empty($validated['topupData'])) {
-            $topupDataString = implode(', ', array_map(fn($item) => $item['name'], $validated['topupData']));
-        }
+        // generate slug
+        $slug = Str::slug($validated['game_name']) . '-' . Str::random(5);
 
-        // dd($validated['howTo']);
-        $slug = Str::slug($request->nama_game) . '-' . Str::random(5);
+        // store game
         $game = Game::create([
-            'logo' => $path,
-            'name' => $validated['nama_game'],
-            'slug' => $slug,
-            'company' => $validated['perusahaan_game'],
-            'how_to' => $validated['howTo'],
-            'topup_data' => $topupDataString,
+            'logo'       => $path,
+            'name'       => $validated['game_name'],
+            'slug'       => $slug,
+            'company'    => $validated['game_company'],
+            'how_to'     => $validated['how_to'] ?? null,
+            'topup_data' => json_encode($validated['topup_data'] ?? []),
         ]);
 
-        foreach ($request->vouchers as $voucherCategory) {
-            $category = CategoryVoucher::create([
-                'game_id' => $game->id,
-                'name'    => $voucherCategory['name'],
-            ]);
-
-            foreach ($voucherCategory['inputs'] as $package) {
-                Package::create([
-                    'category_voucher_id' => $category->id,
-                    'name'   => $package['packageName'],
-                    'price'  => $package['amount'],
-                    'quantity' => 0,
+        // handle vouchers
+        if (!empty($validated['vouchers'])) {
+            foreach ($validated['vouchers'] as $voucherCategory) {
+                $category = CategoryVoucher::create([
+                    'game_id' => $game->id,
+                    'name'    => $voucherCategory['name'],
                 ]);
+
+                foreach ($voucherCategory['inputs'] as $package) {
+                    Package::create([
+                        'category_voucher_id' => $category->id,
+                        'name'     => $package['packageName'],
+                        'price'    => $package['amount'],
+                        'quantity' => 0,
+                    ]);
+                }
             }
         }
-
 
         return redirect()->back();
     }
@@ -156,61 +153,48 @@ class AdminController extends Controller
 
     public function updateGame(Game $game, Request $request)
     {
+        // validate request
         $validated = $request->validate([
-            'logo_game'       => 'nullable|image|max:2048',
-            'nama_game'       => 'required|string|max:255',
-            'perusahaan_game' => 'required|string|max:255',
-            'howTo'           => 'nullable',
-            'topupData'       => 'array',
-            'vouchers'        => 'nullable|array',
-            'vouchers.*.name' => 'nullable|string|max:255',
+            'game_logo'        => 'nullable|image|max:2048',
+            'game_name'        => 'required|string|max:255',
+            'game_company'     => 'required|string|max:255',
+            'how_to'      => 'nullable|string',
+            'topup_data'  => 'array',
+            'vouchers'         => 'nullable|array',
+            'vouchers.*.name'  => 'nullable|string|max:255',
             'vouchers.*.inputs' => 'array',
             'vouchers.*.inputs.*.packageName' => 'nullable|string|max:255',
             'vouchers.*.inputs.*.amount'      => 'required|numeric|min:0',
         ]);
 
-        // Handle logo
-        $path = $game->logo; // keep old if not replaced
-        if ($request->hasFile('logo_game')) {
-            $mediaFile = $request->file('logo_game');
-            $filename = Str::slug($request->nama_game) . '-' . Str::random(5) . '.' . $mediaFile->getClientOriginalExtension();
-            // upload to S3
-            $path = $mediaFile->storeAs('games', $filename, 's3');
+        $game = Game::findOrFail($game->id);
 
-            // delete old file if exists on S3 //
-            //         wait s3 setup           //
-            //                                 //
-            /////////////////////////////////////
-            // if ($game->logo && \Storage::disk('s3')->exists($game->logo)) {
-            //     \Storage::disk('s3')->delete($game->logo);
-            // }
+        // handle file upload if exists
+        $path = $game->logo; // keep old logo by default
+        if ($request->hasFile('game_logo')) {
+            $mediaFile = $request->file('game_logo');
+            $filename = Str::slug($request->game_name) . '-' . Str::random(5) . '.' . $mediaFile->getClientOriginalExtension();
+            $path = $mediaFile->storeAs('games', $filename, 'public');
         }
 
-        // Handle topupData
-        $topupDataString = null;
-        if (!empty($validated['topupData'])) {
-            $topupDataString = implode(', ', array_map(fn($item) => $item['name'], $validated['topupData']));
-        }
-        $slug = Str::slug($request->nama_game) . '-' . Str::random(5);
-        // Update game
+        // update game
         $game->update([
             'logo'       => $path,
-            'name'       => $validated['nama_game'],
-            'slug' => $slug,
-            'company'    => $validated['perusahaan_game'],
-            'how_to'     => $validated['howTo'],
-            'topup_data' => $topupDataString,
+            'name'       => $validated['game_name'],
+            'company'    => $validated['game_company'],
+            'how_to'     => $validated['how_to'] ?? null,
+            'topup_data' => json_encode($validated['topup_data'] ?? []),
         ]);
 
-        // 🔥 Remove old relations (cascade delete recommended on DB)
-        $game->categoryVoucher()->each(function ($category) {
-            $category->packages()->delete();
-            $category->delete();
-        });
+        // clear old vouchers
+        foreach ($game->categoryVouchers as $category) {
+            Package::where('category_voucher_id', $category->id)->delete();
+        }
+        CategoryVoucher::where('game_id', $game->id)->delete();
 
-        // Recreate vouchers
-        if (!empty($request->vouchers)) {
-            foreach ($request->vouchers as $voucherCategory) {
+        // reinsert vouchers
+        if (!empty($validated['vouchers'])) {
+            foreach ($validated['vouchers'] as $voucherCategory) {
                 $category = CategoryVoucher::create([
                     'game_id' => $game->id,
                     'name'    => $voucherCategory['name'],
@@ -241,21 +225,27 @@ class AdminController extends Controller
         $search = $request->query('search', '');
 
         $packages = \App\Models\Package::query()
+            ->whereNull('deleted_at') // package not deleted
             ->where(function ($query) use ($search) {
                 $query->where('name', 'ilike', '%' . $search . '%')
                     ->orWhereHas('categoryVoucher', function ($cq) use ($search) {
-                        $cq->where('name', 'ilike', '%' . $search . '%')
-                            ->orWhereHas('game', function ($gq) use ($search) {
-                                $gq->where('name', 'ilike', '%' . $search . '%');
+                        $cq->whereNull('deleted_at') // category not deleted
+                            ->where(function ($cq2) use ($search) {
+                                $cq2->where('name', 'ilike', '%' . $search . '%')
+                                    ->orWhereHas('game', function ($gq) use ($search) {
+                                        $gq->whereNull('deleted_at') // game not deleted
+                                            ->where('name', 'ilike', '%' . $search . '%');
+                                    });
                             });
-                    })
-                    ->orWhereHas('vouchers', function ($vq) use ($search) {
-                        $vq->where('voucher_code', 'ilike', '%' . $search . '%');
                     });
             })
-            ->whereNull('deleted_at')
             ->with([
-                'categoryVoucher.game',
+                'categoryVoucher' => function ($q) {
+                    $q->whereNull('deleted_at')
+                        ->with(['game' => function ($g) {
+                            $g->whereNull('deleted_at');
+                        }]);
+                },
             ])
             ->orderBy('created_at', 'desc')
             ->paginate(10)
@@ -266,6 +256,7 @@ class AdminController extends Controller
             'search' => $search,
         ]);
     }
+
 
     public function createVoucher()
     {
@@ -287,16 +278,21 @@ class AdminController extends Controller
     {
         $validated = $request->validate([
             'package_id' => 'required|exists:packages,id',
-            'vouchers' => 'required|array|min:1',
+            'vouchers'   => 'required|array|min:1',
             'vouchers.*' => 'required|string|max:255|distinct',
         ]);
 
+        // insert vouchers
         foreach ($validated['vouchers'] as $code) {
             \App\Models\Voucher::create([
-                'package_id' => $validated['package_id'],
+                'package_id'   => $validated['package_id'],
                 'voucher_code' => $code,
             ]);
         }
+
+        // increment package quantity
+        \App\Models\Package::where('id', $validated['package_id'])
+            ->increment('quantity', count($validated['vouchers']));
 
         return redirect()->back();
     }

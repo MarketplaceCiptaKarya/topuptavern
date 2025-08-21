@@ -1,4 +1,5 @@
 import PreviewMedia from "@/components/custom/preview-media";
+import InputNumber from "@/components/input-number";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -7,8 +8,7 @@ import RichTextEditor from "@/layouts/custom/rich-text-editor";
 import { Game, SharedData } from "@/types";
 import { router, useForm, usePage } from '@inertiajs/react';
 import { Label } from "@radix-ui/react-label";
-import { Trash2 } from "lucide-react";
-import { Key } from "react";
+import { Plus, Save, Trash2 } from "lucide-react";
 
 type VoucherInput = {
     id: string;
@@ -22,11 +22,6 @@ type Voucher = {
     inputs: VoucherInput[];
 };
 
-type TopUpData = {
-    id: string;
-    name: string;
-};
-
 export default function EditGames() {
     const { game } = usePage<
         SharedData & {
@@ -34,26 +29,28 @@ export default function EditGames() {
         }
     >().props;
 
-    console.log('game', game)
-
     const { submit, setData, data, errors, reset } = useForm({
-        logo_game: File | null,
-        nama_game: game.name || "",
-        perusahaan_game: game.company || "",
-        howTo: game.how_to || "",
-        topupData: game.topup_data
-            ? game.topup_data.split(",").map((name: string) => ({
-                id: crypto.randomUUID(),
-                name: name.trim(),
-            }))
-            : [{ id: crypto.randomUUID(), name: "" }],
+        game_logo: File | null,
+        game_name: game.name || "",
+        game_company: game.company || "",
+        how_to: game.how_to || "",
+        topup_data: (() => {
+            try {
+                return Array.isArray(game.topup_data)
+                    ? game.topup_data
+                    : JSON.parse(game.topup_data || "[]");
+            } catch {
+                return [];
+            }
+        })(),
+
         vouchers: game.category_voucher?.length
             ? game.category_voucher.map((cv: any) => ({
                 id: cv.id,
                 name: cv.name || "",
                 inputs: cv.packages?.length
                     ? cv.packages.map((pkg: any) => ({
-                        id: pkg.id, // use package id if it exists, else randomUUID
+                        id: pkg.id,
                         packageName: pkg.name || "",
                         amount: pkg.price || 0,
                     }))
@@ -66,11 +63,9 @@ export default function EditGames() {
             }],
     });
 
-
-
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
-            setData("logo_game", e.target.files[0]);
+            setData("game_logo", e.target.files[0]);
         }
     };
 
@@ -87,24 +82,20 @@ export default function EditGames() {
         ]);
     };
 
-    const addTopupData = () => {
-        setData("topupData", [
-            ...data.topupData,
-            { id: crypto.randomUUID(), name: "" },
-        ]);
+    const addTopupField = () => {
+        setData("topup_data", [...data.topup_data, ""]);
     };
 
-    const updateTopupData = (id: string, value: string) => {
-        setData(
-            "topupData",
-            data.topupData.map(t =>
-                t.id === id ? { ...t, name: value } : t
-            )
-        );
+    const removeTopupField = (index: number) => {
+        const newTopup = [...data.topup_data];
+        newTopup.splice(index, 1);
+        setData("topup_data", newTopup);
     };
 
-    const deleteTopupData = (id: string) => {
-        setData("topupData", data.topupData.filter(t => t.id !== id));
+    const updateTopupField = (index: number, value: string) => {
+        const newFields = [...data.topup_data];
+        newFields[index] = value;
+        setData("topup_data", newFields);
     };
 
     const deleteVoucher = (voucherId: string) => {
@@ -152,7 +143,7 @@ export default function EditGames() {
                 v.id === voucherId
                     ? {
                         ...v,
-                        inputs: v.inputs.map((i: { id: string; }) =>
+                        inputs: v.inputs.map((i) =>
                             i.id === inputId
                                 ? {
                                     ...i,
@@ -172,7 +163,7 @@ export default function EditGames() {
             "vouchers",
             data.vouchers.map((v) =>
                 v.id === voucherId
-                    ? { ...v, inputs: v.inputs.filter((i: { id: string; }) => i.id !== inputId) }
+                    ? { ...v, inputs: v.inputs.filter((i) => i.id !== inputId) }
                     : v
             )
         );
@@ -181,13 +172,12 @@ export default function EditGames() {
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
 
-        // Combine useForm data + vouchers into one object
         const payload = {
             ...data,
             vouchers: data.vouchers.map(v => ({
                 id: v.id,
                 name: v.name,
-                inputs: v.inputs.map((i: { id: any; packageName: any; amount: any; }) => ({
+                inputs: v.inputs.map(i => ({
                     id: i.id,
                     packageName: i.packageName,
                     amount: Number(i.amount) || 0,
@@ -195,13 +185,7 @@ export default function EditGames() {
             })),
         };
 
-        // Debug log
         console.log("Form Payload:", payload);
-
-        // // If you also want to inspect files individually
-        // if (data.logo_game) {
-        //     console.log("Uploaded Files:", data.logo_game);
-        // }
 
         submit('post', route('admin.games.update', game.id), {
             onSuccess: () => {
@@ -212,152 +196,144 @@ export default function EditGames() {
     };
 
     return (
-        <>
-            <AdminLayout>
-                <form onSubmit={handleSubmit} className="w-full">
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Add Game</CardTitle>
-                            <CardDescription>Fill this form to add a game</CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            {/* Game Form */}
-                            <div className="space-y-2">
-                                <PreviewMedia
-                                    initialMedia={
-                                        data.logo_game
-                                            ? { url: URL.createObjectURL(data.logo_game), file: data.logo_game }
-                                            : null
-                                    }
-                                    onChange={(newFile) => setData("logo_game", newFile)}
+        <AdminLayout>
+            <form onSubmit={handleSubmit} className="w-full">
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Edit Game</CardTitle>
+                        <CardDescription>Update this game</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="space-y-2">
+                            <PreviewMedia
+                                initialMedia={
+                                    data.game_logo
+                                        ? { url: URL.createObjectURL(data.game_logo), file: data.game_logo }
+                                        : null
+                                }
+                                onChange={(newFile) => setData("game_logo", newFile)}
+                                error={
+                                    Object.keys(errors)
+                                        .filter((key) => key.startsWith('game_logo'))
+                                        .map((key) => (errors as Record<string, string>)[key])
+                                        .join(', ')
+                                }
+                            />
 
-                                    error={
-                                        Object.keys(errors)
-                                            .filter((key) => key.startsWith('logo_game'))
-                                            .map((key) => (errors as Record<string, string>)[key])
-                                            .join(', ')
-                                    }
-                                />
+                            <Input
+                                type="text"
+                                placeholder="Game Title"
+                                value={data.game_name}
+                                onChange={(e) => setData('game_name', e.target.value)}
+                            />
+                            {errors.game_name && <p className="text-sm text-red-500">{errors.game_name}</p>}
 
-                                <Input
-                                    type="text"
-                                    placeholder="Game Title"
-                                    value={data.nama_game}
-                                    onChange={(e) => setData('nama_game', e.target.value)}
-                                />
-                                {errors.nama_game && <p className="text-sm text-red-500">{errors.nama_game}</p>}
+                            <Input
+                                type="text"
+                                placeholder="Game Company"
+                                value={data.game_company}
+                                onChange={(e) => setData("game_company", e.target.value)}
+                            />
+                            {errors.game_company && <p className="text-sm text-red-500">{errors.game_company}</p>}
 
-                                <Input
-                                    type="text"
-                                    placeholder="Game Company"
-                                    value={data.perusahaan_game}
-                                    onChange={(e) => setData("perusahaan_game", e.target.value)}
-                                />
-                                {errors.perusahaan_game && <p className="text-sm text-red-500">{errors.perusahaan_game}</p>}
+                            <Button type="button" onClick={addTopupField}><Plus /> Add Top Up Data</Button>
 
-                                <Button type="button" onClick={addTopupData}>+ Top Up Data</Button>
-
-                                <div className="space-y-2 mt-3">
-                                    {data.topupData.map((item) => (
-                                        <div key={item.id} className="flex items-center gap-2">
-                                            <Input
-                                                type="text"
-                                                placeholder="Top Up Name"
-                                                value={item.name}
-                                                onChange={(e) => updateTopupData(item.id, e.target.value)}
-                                            />
-                                            <Button
-                                                type="button"
-                                                variant="secondary"
-                                                size="icon"
-                                                onClick={() => deleteTopupData(item.id)}
-                                            >
-                                                <Trash2 />
-                                            </Button>
-                                        </div>
-                                    ))}
-                                </div>
-
-                                <br />
-                                <Label>How To</Label>
-                                <RichTextEditor defaultHtmlValue={data.howTo} onChangeResult={(html) => setData('howTo', html)} />
-                                {errors.howTo && <p className="text-sm text-red-500">{errors.howTo}</p>}
-                            </div>
-                            <div>
-                                <Label className="grid w-full max-w-xs items-center gap-3 my-3">
-                                    Voucher
-                                </Label>
-
-                                {data.vouchers.map((voucher, vIndex) => (
-                                    <div key={voucher.id} className="border rounded p-3 mb-3 space-y-2">
-                                        <div className="flex justify-between items-center">
-                                            <Input
-                                                placeholder="Voucher name (optional)"
-                                                value={voucher.name}
-                                                onChange={e => updateVoucherName(voucher.id, e.target.value)}
-                                            />
-                                            {vIndex > 0 && (
-                                                <Button
-                                                    variant="secondary"
-                                                    size="sm"
-                                                    onClick={() => deleteVoucher(voucher.id)}
-                                                >
-                                                    Delete Voucher
-                                                </Button>
-                                            )}
-                                        </div>
-
-                                        {/* Inputs inside voucher */}
-                                        {voucher.inputs.map((input: {
-                                            id: string;
-                                            packageName: string;
-                                            amount: number;
-                                        }, iIndex: number) => (
-                                            <div key={input.id} className="flex gap-2 items-center">
-                                                <Input
-                                                    placeholder="Package name"
-                                                    value={input.packageName}
-                                                    onChange={e =>
-                                                        updateInput(voucher.id, input.id, "packageName", e.target.value)
-                                                    }
-                                                />
-                                                <Input
-                                                    placeholder="Amount"
-                                                    type="number"
-                                                    min={0}
-                                                    value={input.amount}
-                                                    onChange={e =>
-                                                        updateInput(voucher.id, input.id, "amount", String(e.target.value))
-                                                    }
-                                                />
-                                                {iIndex > 0 && (
-                                                    <Button
-                                                        variant="secondary"
-                                                        type="button"
-                                                        size="icon"
-                                                        onClick={() => deleteInput(voucher.id, input.id)}
-                                                    >
-                                                        <Trash2 />
-                                                    </Button>
-                                                )}
-                                            </div>
-                                        ))}
-
-                                        {/* Add input inside voucher */}
-                                        <Button type="button" size="sm" onClick={() => addInput(voucher.id)}>
-                                            Tambah
+                            <div className="space-y-2 mt-3">
+                                {data.topup_data.map((field, index) => (
+                                    <div key={index} className="flex items-center gap-2">
+                                        <Input
+                                            type="text"
+                                            placeholder="Top Up Name"
+                                            value={field}
+                                            onChange={(e) => updateTopupField(index, e.target.value)}
+                                        />
+                                        <Button
+                                            type="button"
+                                            variant="secondary"
+                                            size="icon"
+                                            onClick={() => removeTopupField(index)}
+                                        >
+                                            <Trash2 />
                                         </Button>
                                     </div>
                                 ))}
-                                <Button type="button" onClick={addVoucher}>+ Voucher</Button>
                             </div>
-                        </CardContent>
-                        <CardFooter>
-                            <Button type="submit">Save</Button>
-                        </CardFooter>
-                    </Card>
-                </form>
-            </AdminLayout >
-        </>
+
+                            <br />
+                            <Label>How To</Label>
+                            <RichTextEditor
+                                defaultHtmlValue={data.how_to}
+                                onChangeResult={(html) => setData('how_to', html)}
+                            />
+                            {errors.how_to && <p className="text-sm text-red-500">{errors.how_to}</p>}
+                        </div>
+
+                        <div>
+                            <Label className="grid w-full max-w-xs items-center gap-3 my-3">
+                                Vouchers
+                            </Label>
+
+                            {data.vouchers.map((voucher, vIndex) => (
+                                <div key={voucher.id} className="border rounded p-3 mb-3 space-y-2">
+                                    <div className="flex justify-between items-center">
+                                        <Input
+                                            placeholder="Voucher name (optional)"
+                                            value={voucher.name}
+                                            onChange={e => updateVoucherName(voucher.id, e.target.value)}
+                                        />
+                                        {vIndex > 0 && (
+                                            <Button
+                                                variant="secondary"
+                                                size="sm"
+                                                onClick={() => deleteVoucher(voucher.id)}
+                                            >
+                                                <Trash2 /> Delete Voucher
+                                            </Button>
+                                        )}
+                                    </div>
+
+                                    {voucher.inputs.map((input, iIndex) => (
+                                        <div key={input.id} className="flex gap-2 items-center">
+                                            <Input
+                                                placeholder="Package name"
+                                                value={input.packageName}
+                                                onChange={e =>
+                                                    updateInput(voucher.id, input.id, "packageName", e.target.value)
+                                                }
+                                            />
+                                            <InputNumber
+                                                placeholder="Amount"
+                                                minValue={0}
+                                                value={input.amount}
+                                                onChange={(val) => updateInput(voucher.id, input.id, 'amount', val)}
+                                            />
+
+                                            {iIndex > 0 && (
+                                                <Button
+                                                    variant="secondary"
+                                                    type="button"
+                                                    size="icon"
+                                                    onClick={() => deleteInput(voucher.id, input.id)}
+                                                >
+                                                    <Trash2 />
+                                                </Button>
+                                            )}
+                                        </div>
+                                    ))}
+
+                                    <Button type="button" size="sm" onClick={() => addInput(voucher.id)}>
+                                        <Plus /> Add Package
+                                    </Button>
+                                </div>
+                            ))}
+                            <Button type="button" onClick={addVoucher}><Plus /> Add Voucher</Button>
+                        </div>
+                    </CardContent>
+                    <CardFooter>
+                        <Button type="submit"><Save /> Save</Button>
+                    </CardFooter>
+                </Card>
+            </form>
+        </AdminLayout>
     );
 }

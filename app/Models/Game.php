@@ -23,6 +23,10 @@ class Game extends Model
         'slug'
     ];
 
+    protected $casts = [
+        'topup_data' => 'array',
+    ];
+
     public function categoryVoucher()
     {
         return $this->hasMany(CategoryVoucher::class, 'game_id');

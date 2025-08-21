@@ -15,6 +15,10 @@ class Voucher extends Model
 
     protected $fillable = ['id', 'package_id', 'voucher_code', 'used_at'];
 
+    protected $casts = [
+        'voucher_code' => 'encrypted'
+    ];
+
     public function package()
     {
         return $this->belongsTo(Package::class, 'package_id');
