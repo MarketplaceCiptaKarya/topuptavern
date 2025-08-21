@@ -1,4 +1,3 @@
-
 import InputNumber from "@/components/input-number";
 import PreviewMedia from "@/components/preview-media";
 import RichTextEditor from "@/components/rich-text-editor";
@@ -6,16 +5,9 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import AdminLayout from "@/layouts/admin-layout";
-
 import { router, useForm } from '@inertiajs/react';
 import { Label } from "@radix-ui/react-label";
 import { Plus, Save, Trash2 } from "lucide-react";
-
-type VoucherInput = {
-    id: string;
-    packageName: string;
-    amount: number;
-};
 
 export default function AddGames() {
     const { submit, setData, data, errors, reset } = useForm<{
