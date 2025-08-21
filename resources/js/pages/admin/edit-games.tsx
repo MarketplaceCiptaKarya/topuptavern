@@ -70,14 +70,12 @@ export default function EditGames() {
     };
 
     const addVoucher = () => {
-        setData("vouchers", [
+        setData('vouchers', [
             ...data.vouchers,
             {
                 id: crypto.randomUUID(),
-                name: "",
-                inputs: [
-                    { id: crypto.randomUUID(), packageName: "", amount: 0 },
-                ],
+                name: '',
+                inputs: [{ id: crypto.randomUUID(), packageName: '', amount: 0 }],
             },
         ]);
     };
@@ -100,45 +98,35 @@ export default function EditGames() {
 
     const deleteVoucher = (voucherId: string) => {
         setData(
-            "vouchers",
-            data.vouchers.filter((v) => v.id !== voucherId)
+            'vouchers',
+            data.vouchers.filter((v) => v.id !== voucherId),
         );
     };
 
     const updateVoucherName = (voucherId: string, value: string) => {
         setData(
-            "vouchers",
-            data.vouchers.map((v) =>
-                v.id === voucherId ? { ...v, name: value } : v
-            )
+            'vouchers',
+            data.vouchers.map((v) => (v.id === voucherId ? { ...v, name: value } : v)),
         );
     };
 
     const addInput = (voucherId: string) => {
         setData(
-            "vouchers",
+            'vouchers',
             data.vouchers.map((v) =>
                 v.id === voucherId
                     ? {
-                        ...v,
-                        inputs: [
-                            ...v.inputs,
-                            { id: crypto.randomUUID(), packageName: "", amount: 0 },
-                        ],
-                    }
-                    : v
-            )
+                          ...v,
+                          inputs: [...v.inputs, { id: crypto.randomUUID(), packageName: '', amount: 0 }],
+                      }
+                    : v,
+            ),
         );
     };
 
-    const updateInput = (
-        voucherId: string,
-        inputId: string,
-        field: "packageName" | "amount",
-        value: string | number
-    ) => {
+    const updateInput = (voucherId: string, inputId: string, field: 'packageName' | 'amount', value: string | number) => {
         setData(
-            "vouchers",
+            'vouchers',
             data.vouchers.map((v) =>
                 v.id === voucherId
                     ? {
@@ -174,7 +162,7 @@ export default function EditGames() {
 
         const payload = {
             ...data,
-            vouchers: data.vouchers.map(v => ({
+            vouchers: data.vouchers.map((v) => ({
                 id: v.id,
                 name: v.name,
                 inputs: v.inputs.map(i => ({

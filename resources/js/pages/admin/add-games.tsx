@@ -46,10 +46,10 @@ export default function AddGames() {
         vouchers: [
             {
                 id: crypto.randomUUID(),
-                name: "",
-                inputs: [{ id: crypto.randomUUID(), packageName: "", amount: 0 }]
-            }
-        ]
+                name: '',
+                inputs: [{ id: crypto.randomUUID(), packageName: '', amount: 0 }],
+            },
+        ],
     });
 
     const handleSubmit = (e: React.FormEvent) => {
@@ -82,68 +82,55 @@ export default function AddGames() {
             },
         ]);
 
+
     const deleteVoucher = (voucherId: string) =>
         setData("vouchers", data.vouchers.filter((v) => v.id !== voucherId));
 
     const updateVoucherName = (voucherId: string, value: string) =>
+
         setData(
-            "vouchers",
-            data.vouchers.map((v) =>
-                v.id === voucherId ? { ...v, name: value } : v
-            )
+            'vouchers',
+            data.vouchers.map((v) => (v.id === voucherId ? { ...v, name: value } : v)),
         );
 
     const addInput = (voucherId: string) =>
         setData(
-            "vouchers",
+            'vouchers',
             data.vouchers.map((v) =>
                 v.id === voucherId
                     ? {
-                        ...v,
-                        inputs: [
-                            ...v.inputs,
-                            { id: crypto.randomUUID(), packageName: "", amount: 0 },
-                        ],
-                    }
-                    : v
-            )
+                          ...v,
+                          inputs: [...v.inputs, { id: crypto.randomUUID(), packageName: '', amount: 0 }],
+                      }
+                    : v,
+            ),
         );
 
-    const updateInput = (
-        voucherId: string,
-        inputId: string,
-        field: "packageName" | "amount",
-        value: string | number
-    ) => {
+    const updateInput = (voucherId: string, inputId: string, field: 'packageName' | 'amount', value: string | number) => {
         setData(
-            "vouchers",
+            'vouchers',
             data.vouchers.map((v) =>
                 v.id === voucherId
                     ? {
-                        ...v,
-                        inputs: v.inputs.map((i) =>
-                            i.id === inputId
-                                ? {
-                                    ...i,
-                                    [field]:
-                                        field === "amount" ? Number(value) : (value as string),
-                                }
-                                : i
-                        ),
-                    }
-                    : v
-            )
+                          ...v,
+                          inputs: v.inputs.map((i) =>
+                              i.id === inputId
+                                  ? {
+                                        ...i,
+                                        [field]: field === 'amount' ? Number(value) : (value as string),
+                                    }
+                                  : i,
+                          ),
+                      }
+                    : v,
+            ),
         );
     };
 
     const deleteInput = (voucherId: string, inputId: string) =>
         setData(
-            "vouchers",
-            data.vouchers.map((v) =>
-                v.id === voucherId
-                    ? { ...v, inputs: v.inputs.filter((i) => i.id !== inputId) }
-                    : v
-            )
+            'vouchers',
+            data.vouchers.map((v) => (v.id === voucherId ? { ...v, inputs: v.inputs.filter((i) => i.id !== inputId) } : v)),
         );
 
     return (
@@ -271,7 +258,6 @@ export default function AddGames() {
                                             )}
                                         </div>
                                     ))}
-
                                     <Button type="button" size="sm" onClick={() => addInput(voucher.id)}>
                                         <Plus /> Add Input
                                     </Button>

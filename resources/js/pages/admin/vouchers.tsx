@@ -1,23 +1,29 @@
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import {
+    Pagination,
+    PaginationContent,
+    PaginationEllipsis,
+    PaginationItem,
+    PaginationLink,
+    PaginationNext,
+    PaginationPrevious,
+} from '@/components/ui/pagination';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { useDebouncedValue } from "@/hooks/use-debounced";
-import AdminLayout from "@/layouts/custom/admin-layout";
-import { dateFormatter } from "@/lib/global";
-import { Game, Package, PaginatedResponse, SharedData, Voucher } from "@/types";
-import { router, usePage, Link } from "@inertiajs/react";
-import { Pencil } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
-import { toast } from "sonner";
+import { useDebouncedValue } from '@/hooks/use-debounced';
+import AdminLayout from '@/layouts/admin-layout';
+import { Package, PaginatedResponse, SharedData } from '@/types';
+import { Link, router, usePage } from '@inertiajs/react';
+import { Pencil } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
 
 export default function ShowVouchers() {
     const { packages, search } = usePage<SharedData & { packages: PaginatedResponse<Package>; search: string }>().props;
     const [input, setInput] = useState<string>(search);
     const initialLoad = useRef<boolean>(true);
     const debouncedValue = useDebouncedValue(input, 500);
-    console.log('packages', packages.data)
+    console.log('packages', packages.data);
     useEffect(() => {
         if (initialLoad.current) {
             initialLoad.current = false;
@@ -41,7 +47,7 @@ export default function ShowVouchers() {
                     <CardDescription>List of games</CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <div className="{`w-full space-y-5 overflow-x-auto whitespace-nowrap`}">
+                    <div className="{`w-full whitespace-nowrap`} space-y-5 overflow-x-auto">
                         <div className="flex p-4">
                             <Input type="text" placeholder="Search by name" value={input} onChange={(e) => setInput(e.target.value)} />
                         </div>
@@ -65,7 +71,9 @@ export default function ShowVouchers() {
                                         <TableCell>
                                             <span className="flex flex-row gap-2">
                                                 <Button size="sm" variant="outline" asChild>
-                                                    <Link href={route('admin.vouchers.edit', p.id)}><Pencil /> Edit</Link>
+                                                    <Link href={route('admin.vouchers.edit', p.id)}>
+                                                        <Pencil /> Edit
+                                                    </Link>
                                                 </Button>
                                                 {/* <Button
                                                     size="sm"
@@ -128,7 +136,7 @@ export default function ShowVouchers() {
                 </CardContent>
             </Card>
         </>
-    )
+    );
 }
 
 ShowVouchers.layout = (page: React.ReactNode) => <AdminLayout>{page}</AdminLayout>;

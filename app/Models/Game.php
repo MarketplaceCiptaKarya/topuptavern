@@ -2,15 +2,14 @@
 
 namespace App\Models;
 
-use App\Traits\HasUuid;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Support\Str;
 
 class Game extends Model
 {
-    use HasFactory, SoftDeletes, HasUuid;
+    use SoftDeletes, HasUuids;
+
     protected $table = 'games';
 
     protected $fillable = [

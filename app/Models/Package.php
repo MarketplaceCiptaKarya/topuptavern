@@ -2,14 +2,13 @@
 
 namespace App\Models;
 
-use App\Traits\HasUuid;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Package extends Model
 {
-    use HasFactory, SoftDeletes, HasUuid;
+    use  SoftDeletes, HasUuids;
 
     protected $table = 'packages';
 

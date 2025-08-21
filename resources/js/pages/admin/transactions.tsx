@@ -1,5 +1,5 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import AdminLayout from "@/layouts/custom/admin-layout";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import AdminLayout from '@/layouts/admin-layout';
 
 export default function AdminTransactions() {
     return (
@@ -14,7 +14,7 @@ export default function AdminTransactions() {
                 </CardContent>
             </Card>
         </>
-    )
+    );
 }
 
 AdminTransactions.layout = (page: React.ReactNode) => <AdminLayout>{page}</AdminLayout>;

@@ -1,16 +1,24 @@
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import {
+    Pagination,
+    PaginationContent,
+    PaginationEllipsis,
+    PaginationItem,
+    PaginationLink,
+    PaginationNext,
+    PaginationPrevious,
+} from '@/components/ui/pagination';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { useDebouncedValue } from "@/hooks/use-debounced";
-import AdminLayout from "@/layouts/custom/admin-layout";
-import { dateFormatter } from "@/lib/global";
-import { Game, PaginatedResponse, SharedData } from "@/types";
-import { router, usePage, Link } from "@inertiajs/react";
-import { Pencil, Trash2 } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
-import { toast } from "sonner";
+import { useDebouncedValue } from '@/hooks/use-debounced';
+import AdminLayout from '@/layouts/admin-layout';
+import { dateFormatter } from '@/lib/global';
+import { Game, PaginatedResponse, SharedData } from '@/types';
+import { Link, router, usePage } from '@inertiajs/react';
+import { Pencil, Trash2 } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+import { toast } from 'sonner';
 
 export default function ShowGames() {
     const { games, search } = usePage<SharedData & { games: PaginatedResponse<Game>; search: string }>().props;
@@ -41,7 +49,7 @@ export default function ShowGames() {
                     <CardDescription>List of games</CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <div className="{`w-full space-y-5 overflow-x-auto whitespace-nowrap`}">
+                    <div className="{`w-full whitespace-nowrap`} space-y-5 overflow-x-auto">
                         <div className="flex p-4">
                             <Input type="text" placeholder="Search by name" value={input} onChange={(e) => setInput(e.target.value)} />
                         </div>
@@ -65,7 +73,10 @@ export default function ShowGames() {
                                         <TableCell>
                                             <span className="flex flex-row gap-2">
                                                 <Button size="sm" variant="outline" asChild>
-                                                    <Link href={route('admin.games.edit', game.id)}><Pencil />Edit</Link>
+                                                    <Link href={route('admin.games.edit', game.id)}>
+                                                        <Pencil />
+                                                        Edit
+                                                    </Link>
                                                 </Button>
                                                 <Button
                                                     size="sm"
@@ -77,7 +88,8 @@ export default function ShowGames() {
                                                         });
                                                     }}
                                                 >
-                                                    <Trash2 />Delete
+                                                    <Trash2 />
+                                                    Delete
                                                 </Button>
                                             </span>
                                         </TableCell>
@@ -128,7 +140,7 @@ export default function ShowGames() {
                 </CardContent>
             </Card>
         </>
-    )
+    );
 }
 
 ShowGames.layout = (page: React.ReactNode) => <AdminLayout>{page}</AdminLayout>;

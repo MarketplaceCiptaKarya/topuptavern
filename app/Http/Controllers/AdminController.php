@@ -8,13 +8,11 @@ use App\Models\Game;
 use App\Models\Package;
 use App\Models\Product;
 use App\Models\ProductGallery;
-use App\Models\Voucher;
 use Database\Seeders\CategorySeeder;
 use Database\Seeders\StaticWebsiteDatumSeeder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Session;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
 
@@ -98,7 +96,7 @@ class AdminController extends Controller
             'vouchers.*.name' => 'nullable|string|max:255',
             'vouchers.*.inputs' => 'array',
             'vouchers.*.inputs.*.packageName' => 'nullable|string|max:255',
-            'vouchers.*.inputs.*.amount'      => 'required|numeric|min:0',
+            'vouchers.*.inputs.*.amount' => 'required|numeric|min:0',
         ]);
 
         // handle file upload if exists
@@ -121,6 +119,7 @@ class AdminController extends Controller
             'how_to'     => $validated['how_to'] ?? null,
             'topup_data' => json_encode($validated['topup_data'] ?? []),
         ]);
+
 
         // handle vouchers
         if (!empty($validated['vouchers'])) {
@@ -165,7 +164,7 @@ class AdminController extends Controller
             'vouchers.*.name'  => 'nullable|string|max:255',
             'vouchers.*.inputs' => 'array',
             'vouchers.*.inputs.*.packageName' => 'nullable|string|max:255',
-            'vouchers.*.inputs.*.amount'      => 'required|numeric|min:0',
+            'vouchers.*.inputs.*.amount' => 'required|numeric|min:0',
         ]);
 
         $game = Game::findOrFail($game->id);
@@ -198,14 +197,14 @@ class AdminController extends Controller
             foreach ($validated['vouchers'] as $voucherCategory) {
                 $category = CategoryVoucher::create([
                     'game_id' => $game->id,
-                    'name'    => $voucherCategory['name'],
+                    'name' => $voucherCategory['name'],
                 ]);
 
                 foreach ($voucherCategory['inputs'] as $package) {
                     Package::create([
                         'category_voucher_id' => $category->id,
-                        'name'     => $package['packageName'],
-                        'price'    => $package['amount'],
+                        'name' => $package['packageName'],
+                        'price' => $package['amount'],
                         'quantity' => 0,
                     ]);
                 }

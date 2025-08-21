@@ -50,7 +50,7 @@ export default function Welcome() {
                 </div>
                 <div className="container mx-auto my-10 space-y-2 px-4">
                     <div className="text-xl font-bold">Title</div>
-                    <div className="grid grid-cols-5 gap-4">
+                    <div className="grid grid-cols-2 gap-4 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-8">
                         {Array.from({ length: 100 }).map((_, i) => (
                             <GameCard3D
                                 image={

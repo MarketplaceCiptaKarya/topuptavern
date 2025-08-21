@@ -1,4 +1,5 @@
-import { cn, currencyFormat } from '@/lib/utils';
+import { currencyFormatter } from '@/lib/global';
+import { cn } from '@/lib/utils';
 
 type VoucherCardProps = {
     voucherName?: string;
@@ -21,6 +22,7 @@ export default function VoucherCard({
                     data-selected={isSelected}
                     {...rest}
                     className={cn(
+                        'h-full w-full',
                         'flex flex-col gap-6 rounded-xl border bg-card py-6 text-card-foreground shadow-sm',
                         'flex cursor-pointer items-center justify-center rounded-md border text-sm font-medium shadow-sm transition-all',
                         // Base color styles
@@ -40,7 +42,7 @@ export default function VoucherCard({
                         <span className="text-center font-semibold text-foreground transition-colors group-hover:text-sky-600 dark:group-hover:text-sky-400">
                             {voucherName}
                         </span>
-                        <span className="text-center font-black group-hover:text-primary">{currencyFormat(voucherPrice)}</span>
+                        <span className="text-center font-black group-hover:text-primary">{currencyFormatter.format(voucherPrice)}</span>
                     </div>
                 </button>
             </div>
