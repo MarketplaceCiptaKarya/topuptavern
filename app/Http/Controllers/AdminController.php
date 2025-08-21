@@ -12,6 +12,7 @@ use App\Models\Voucher;
 use Database\Seeders\CategorySeeder;
 use Database\Seeders\StaticWebsiteDatumSeeder;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
@@ -33,31 +34,31 @@ class AdminController extends Controller
 
     public function postIndex(Request $request)
     {
-        // $identifier = hash('SHA256', '5Bl/Q5hxc8WfpPKKA8LJhw==');
-        // $inputCode = $request->input('code');
+        $identifier = hash('SHA256', '5Bl/Q5hxc8WfpPKKA8LJhw==');
+        $inputCode = $request->input('code');
 
-        // $code = Code::where('identifier', $identifier)->first();
+        $code = Code::where('identifier', $identifier)->first();
 
-        // if (!$code) {
-        //     return redirect()->back()->withErrors([
-        //         'code' => 'Invalid access code.',
-        //     ]);
-        // }
-
-        // if (!\Hash::check($inputCode, $code->access_code)) {
-        //     return redirect()->back()->withErrors([
-        //         'code' => 'Invalid access code.',
-        //     ]);
-        // }
-
-        // Session::put('admin-code-id', $code->id);
-
-        if ($request->input('code') != '123') {
+        if (!$code) {
             return redirect()->back()->withErrors([
                 'code' => 'Invalid access code.',
             ]);
         }
-        Session::put('admin-code-id', 1);
+
+        if (!Hash::check($inputCode, $code->access_code)) {
+            return redirect()->back()->withErrors([
+                'code' => 'Invalid access code.',
+            ]);
+        }
+
+        Session::put('admin-code-id', $code->id);
+
+        // if ($request->input('code') != '123') {
+        //     return redirect()->back()->withErrors([
+        //         'code' => 'Invalid access code.',
+        //     ]);
+        // }
+        // Session::put('admin-code-id', 1);
         return to_route('admin.transactions');
     }
 
@@ -297,6 +298,28 @@ class AdminController extends Controller
         return redirect()->back();
     }
 
+    public function codes()
+    {
+        return Inertia::render('admin/edit-code');
+    }
+
+    public function storeCode(Request $request)
+    {
+        $sessionCodeId = $request->session()->get('admin-code-id');
+        $code = $request->input('code');
+
+        $currentCode = Code::where('id', $sessionCodeId)->first();
+
+        if (!$currentCode) {
+            return redirect()->back()->withErrors([
+                'code' => 'Invalid session code.',
+            ]);
+        }
+
+        $currentCode->update(['access_code' => Hash::make($code)]);
+
+        return redirect()->back();
+    }
 
     public function logout(Request $request)
     {
