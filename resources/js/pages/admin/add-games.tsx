@@ -1,25 +1,13 @@
-import PreviewMedia from "@/components/custom/preview-media";
 import InputNumber from "@/components/input-number";
+import PreviewMedia from "@/components/preview-media";
+import RichTextEditor from "@/components/rich-text-editor";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import AdminLayout from "@/layouts/custom/admin-layout";
-import RichTextEditor from "@/layouts/custom/rich-text-editor";
+import AdminLayout from "@/layouts/admin-layout";
 import { router, useForm } from '@inertiajs/react';
 import { Label } from "@radix-ui/react-label";
 import { Plus, Save, Trash2 } from "lucide-react";
-
-type VoucherInput = {
-    id: string;
-    packageName: string;
-    amount: number;
-};
-
-type Voucher = {
-    id: string;
-    name: string;
-    inputs: VoucherInput[];
-};
 
 export default function AddGames() {
     const { submit, setData, data, errors, reset } = useForm<{
@@ -99,9 +87,9 @@ export default function AddGames() {
             data.vouchers.map((v) =>
                 v.id === voucherId
                     ? {
-                          ...v,
-                          inputs: [...v.inputs, { id: crypto.randomUUID(), packageName: '', amount: 0 }],
-                      }
+                        ...v,
+                        inputs: [...v.inputs, { id: crypto.randomUUID(), packageName: '', amount: 0 }],
+                    }
                     : v,
             ),
         );
@@ -112,16 +100,16 @@ export default function AddGames() {
             data.vouchers.map((v) =>
                 v.id === voucherId
                     ? {
-                          ...v,
-                          inputs: v.inputs.map((i) =>
-                              i.id === inputId
-                                  ? {
-                                        ...i,
-                                        [field]: field === 'amount' ? Number(value) : (value as string),
-                                    }
-                                  : i,
-                          ),
-                      }
+                        ...v,
+                        inputs: v.inputs.map((i) =>
+                            i.id === inputId
+                                ? {
+                                    ...i,
+                                    [field]: field === 'amount' ? Number(value) : (value as string),
+                                }
+                                : i,
+                        ),
+                    }
                     : v,
             ),
         );
@@ -193,7 +181,13 @@ export default function AddGames() {
                                         >
                                             <Trash2 />
                                         </Button>
+                                        {(errors as Record<string, string>)[`topup_data.${index}`] && (
+                                            <p className="text-sm text-red-500">
+                                                {(errors as Record<string, string>)[`topup_data.${index}`]}
+                                            </p>
+                                        )}
                                     </div>
+
                                 ))}
                             </div>
 
