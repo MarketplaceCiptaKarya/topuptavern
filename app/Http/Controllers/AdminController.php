@@ -117,7 +117,7 @@ class AdminController extends Controller
             'slug'       => $slug,
             'company'    => $validated['game_company'],
             'how_to'     => $validated['how_to'] ?? null,
-            'topup_data' => json_encode($validated['topup_data'] ?? []),
+            'topup_data' => $validated['topup_data'],
         ]);
 
 

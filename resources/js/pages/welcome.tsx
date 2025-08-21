@@ -2,21 +2,16 @@ import GameCard3D from '@/components/game-card';
 import { Carousel, CarouselContent, CarouselDots, CarouselItem } from '@/components/ui/carousel';
 import useWebsiteData from '@/hooks/use-website-data';
 import MainLayout from '@/layouts/layout';
+import { Game } from '@/types';
 import { Head } from '@inertiajs/react';
 import Autoplay from 'embla-carousel-autoplay';
 
 interface WelcomeProps {
-    vouchers: {
-        id: number;
-        title: string;
-        image: string;
-        alt: string;
-        link: string;
-    }[];
+    games: Game[];
 }
 
-export default function Welcome() {
-    const { carouselData } = useWebsiteData();
+export default function Welcome({ games }: WelcomeProps) {
+    const { carouselData, voucherTitle } = useWebsiteData();
 
     return (
         <>
@@ -49,21 +44,10 @@ export default function Welcome() {
                     </Carousel>
                 </div>
                 <div className="container mx-auto my-10 space-y-2 px-4">
-                    <div className="text-xl font-bold">Title</div>
+                    <div className="text-xl font-bold">{voucherTitle}</div>
                     <div className="grid grid-cols-2 gap-4 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-8">
-                        {Array.from({ length: 100 }).map((_, i) => (
-                            <GameCard3D
-                                image={
-                                    i % 2 === 0
-                                        ? 'https://assets.mabartopup.id/category/ludo-world-Uj7H-kVS0.webp'
-                                        : 'https://assets.mabartopup.id/category/steam-wallet-code-V3Gn-rVN8.jpg'
-                                }
-                                // image={'https://assets.mabartopup.id/category/steam-wallet-code-V3Gn-rVN8.jpg'}
-                                alt={''}
-                                title={'steam'}
-                                link={route('home')}
-                                key={i}
-                            />
+                        {games.map((game, i) => (
+                            <GameCard3D key={i} image={game.logo} alt={game.name} title={game.name} link={route('detail-voucher', game.slug)} />
                         ))}
                     </div>
                 </div>

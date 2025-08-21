@@ -6,94 +6,66 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import VoucherCard from '@/components/voucher-card';
 import MainLayout from '@/layouts/layout';
-import { SharedData } from '@/types';
-import { Head } from '@inertiajs/react';
+import { currencyFormatter, titleCaseToSnakeCase } from '@/lib/global';
+import { Game, SharedData } from '@/types';
+import { Head, useForm } from '@inertiajs/react';
 import { GemIcon, TagIcon } from 'lucide-react';
-import { Fragment, useId } from 'react';
+import { Fragment, useEffect, useId, useState } from 'react';
 
 type DetailVoucherProps = {
-    gameTitle: string;
-    gameCompany: string;
-    gameImage: string;
-    gameAltImage: string;
-    orderInstructions?: string;
-    orderData?: string[];
-    categories: {
-        id: string;
-        name?: string;
-        packages: {
-            id: string;
-            name: string;
-            price: number;
-            quantity: number;
-        }[];
-    }[];
+    game: Game;
 } & SharedData;
 
-export default function DetailVoucher({
-    gameTitle = 'Steam',
-    gameCompany = 'Valve',
-    gameImage = 'https://assets.mabartopup.id/category/steam-wallet-code-V3Gn-rVN8.jpg',
-    gameAltImage = 'steam',
-    orderInstructions = '<p>1. Pilih kategori voucher yang diinginkan.</p><p>2. Pilih paket voucher yang sesuai.</p><p>3. Isi data pemesan dan email untuk pengiriman voucher.</p><p>4. Tentukan jumlah pembelian.</p><p>5. Klik tombol "Process to Payment" untuk melanjutkan ke pembayaran.</p>',
-    orderData = ['user id', 'zone id'],
-    categories = [
-        {
-            id: '1',
-            name: 'Steam Wallet',
-            packages: [
-                {
-                    id: '1',
-                    name: 'Steam Wallet 100k',
-                    price: 100000,
-                    quantity: 1,
-                },
-                {
-                    id: '2',
-                    name: 'Steam Wallet 200k',
-                    price: 200000,
-                    quantity: 1,
-                },
-            ],
-        },
-        {
-            id: '2',
-            name: 'Google Play',
-            packages: [
-                {
-                    id: '3',
-                    name: 'Google Play 50k',
-                    price: 50000,
-                    quantity: 1,
-                },
-                {
-                    id: '4',
-                    name: 'Google Play 100k',
-                    price: 100000,
-                    quantity: 1,
-                },
-            ],
-        },
-    ],
-}: DetailVoucherProps) {
+type BuyVoucherForm = {
+    email: string;
+    topupData?: Record<string, string>;
+    selectedVoucherId: string;
+    quantity: number;
+};
+
+export default function DetailVoucher({ game: { name, logo, company, how_to, topup_data, category_voucher } }: DetailVoucherProps) {
     const id = useId();
+    const [total, setTotal] = useState<number>(0);
+    const { submit, setData, data } = useForm<BuyVoucherForm>({
+        email: '',
+        selectedVoucherId: '',
+        quantity: 1,
+    });
+
+    useEffect(() => {
+        const voucherPrice = category_voucher.flatMap((category) => category.packages).find((pkg) => pkg.id === data.selectedVoucherId)?.price || 0;
+        setTotal(voucherPrice * data.quantity);
+    }, [data.selectedVoucherId, data.quantity, category_voucher]);
+
+    const toggleSelectedId = (id: string) => {
+        if (data.selectedVoucherId === id) {
+            setData('selectedVoucherId', '');
+        } else {
+            setData('selectedVoucherId', id);
+        }
+    };
+
+    const purchaseVoucher = () => {
+        console.log(data);
+    };
+
     return (
         <>
-            <Head title={gameTitle}></Head>
+            <Head title={name}></Head>
             <MainLayout>
                 <div className="container mx-auto my-4 space-y-4 px-4">
                     <div className="w-full">
                         <Card className="flex flex-row items-center gap-4 px-6">
                             <div className="inline-flex size-28 shrink-0 items-center justify-center border md:size-32 lg:size-44">
-                                <img src={gameImage} alt={gameAltImage} className="size-fit" />
+                                <img src={logo} alt={`Logo ${name}`} className="size-fit" />
                             </div>
                             <div className="flex grow flex-col gap-2">
-                                <span className="text-2xl font-bold">{gameTitle}</span>
-                                <span className="text-lg font-semibold">{gameCompany}</span>
+                                <span className="text-2xl font-bold">{name}</span>
+                                <span className="text-lg font-semibold">{company}</span>
                             </div>
                         </Card>
                     </div>
-                    {orderInstructions && (
+                    {how_to && (
                         <div className="w-full">
                             <Card className="flex flex-row items-center gap-4 px-6">
                                 <Accordion type="single" collapsible className="w-full">
@@ -101,9 +73,9 @@ export default function DetailVoucher({
                                         <AccordionTrigger className="pt-0 font-bold data-[state=closed]:pb-0">How to order</AccordionTrigger>
                                         <AccordionContent className="text-muted-foreground">
                                             <div
-                                                className="h-full w-full"
+                                                className="reset-defaults h-full w-full"
                                                 dangerouslySetInnerHTML={{
-                                                    __html: orderInstructions,
+                                                    __html: how_to,
                                                 }}
                                             ></div>
                                         </AccordionContent>
@@ -112,15 +84,26 @@ export default function DetailVoucher({
                             </Card>
                         </div>
                     )}
-                    {orderData?.length > 0 && (
+                    {topup_data?.length > 0 && (
                         <div className="w-full">
                             <Card className="flex flex-row flex-wrap items-center gap-4 px-6">
-                                {orderData.map((data, index) => (
-                                    <div key={index + '-' + data} className="w-full max-w-xs space-y-2">
-                                        <Label htmlFor={id + '-' + index + '-' + data} className="gap-1">
-                                            {data}
+                                {topup_data.map((topupData, index) => (
+                                    <div key={index + '-' + topupData} className="w-full max-w-xs space-y-2">
+                                        <Label htmlFor={id + '-' + index + '-' + topupData} className="gap-1">
+                                            {topupData}
                                         </Label>
-                                        <Input id={id + '-' + index + '-' + data} type="text" placeholder={data} />
+                                        <Input
+                                            id={id + '-' + index + '-' + topupData}
+                                            value={data?.topupData?.[titleCaseToSnakeCase(topupData)] ?? ''}
+                                            onChange={(e) =>
+                                                setData('topupData', {
+                                                    ...data.topupData,
+                                                    [titleCaseToSnakeCase(topupData)]: e.target.value,
+                                                })
+                                            }
+                                            type="text"
+                                            placeholder={topupData}
+                                        />
                                     </div>
                                 ))}
                             </Card>
@@ -132,7 +115,14 @@ export default function DetailVoucher({
                                 <Label htmlFor={id} className="gap-1">
                                     Email <span className="text-destructive">*</span>
                                 </Label>
-                                <Input id={id} type="email" placeholder="Email address" required />
+                                <Input
+                                    id={id}
+                                    value={data.email}
+                                    onChange={(e) => setData('email', e.target.value)}
+                                    type="email"
+                                    placeholder="Email address"
+                                    required
+                                />
                                 <p className="text-xs text-muted-foreground">Email digunakan untuk pengiriman voucher dan bukti transaksi</p>
                             </div>
                         </Card>
@@ -146,7 +136,7 @@ export default function DetailVoucher({
                                 </span>
                                 <span className="text-sm text-muted-foreground">Select the voucher you want to purchase</span>
                             </div>
-                            {categories.map((category) => (
+                            {category_voucher.map((category) => (
                                 <Fragment key={category.id}>
                                     {category.name && (
                                         <div className="col-span-full">
@@ -158,7 +148,8 @@ export default function DetailVoucher({
                                             key={pkg.id}
                                             voucherName={pkg.name}
                                             voucherPrice={pkg.price}
-                                            isSelected={false}
+                                            onClick={() => toggleSelectedId(pkg.id)}
+                                            isSelected={data.selectedVoucherId === pkg.id}
                                             disabled={false}
                                         />
                                     ))}
@@ -166,9 +157,15 @@ export default function DetailVoucher({
                             ))}
                         </Card>
                         <Card className="sticky top-auto bottom-3 h-fit shrink-0 px-6 md:top-3 md:bottom-auto">
-                            <InputWithPlusMinusButtons defaultValue={1} label="Purchase Quantity" minValue={1} locale="id-ID" />
-                            <span className="text-lg font-bold">Total: </span>
-                            <Button variant="outline">
+                            <InputWithPlusMinusButtons
+                                value={data.quantity}
+                                onChange={(qty) => setData('quantity', qty)}
+                                label="Purchase Quantity"
+                                minValue={1}
+                                locale="id-ID"
+                            />
+                            <span className="text-lg font-bold">Total: {currencyFormatter.format(total)}</span>
+                            <Button variant="outline" onClick={() => purchaseVoucher()}>
                                 <TagIcon />
                                 Process to Payment
                             </Button>
