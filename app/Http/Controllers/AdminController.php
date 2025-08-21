@@ -92,12 +92,16 @@ class AdminController extends Controller
             'game_company'    => 'required|string|max:255',
             'how_to'     => 'nullable|string',
             'topup_data' => 'array',
+            'topup_data.*'    => 'required|string|max:255|distinct',
             'vouchers'        => 'nullable|array',
             'vouchers.*.name' => 'nullable|string|max:255',
             'vouchers.*.inputs' => 'array',
             'vouchers.*.inputs.*.packageName' => 'nullable|string|max:255',
             'vouchers.*.inputs.*.amount' => 'required|numeric|min:0',
+        ], [
+            'topup_data.*.distinct' => 'Duplicate values are not allowed in top-up fields.',
         ]);
+
 
         // handle file upload if exists
         $path = null;
@@ -117,7 +121,7 @@ class AdminController extends Controller
             'slug'       => $slug,
             'company'    => $validated['game_company'],
             'how_to'     => $validated['how_to'] ?? null,
-            'topup_data' => json_encode($validated['topup_data'] ?? []),
+            'topup_data' => $validated['topup_data'] ?? [],
         ]);
 
 
@@ -160,15 +164,21 @@ class AdminController extends Controller
             'game_company'     => 'required|string|max:255',
             'how_to'      => 'nullable|string',
             'topup_data'  => 'array',
+            'topup_data.*'    => 'required|string|max:255|distinct',
             'vouchers'         => 'nullable|array',
             'vouchers.*.name'  => 'nullable|string|max:255',
             'vouchers.*.inputs' => 'array',
             'vouchers.*.inputs.*.packageName' => 'nullable|string|max:255',
             'vouchers.*.inputs.*.amount' => 'required|numeric|min:0',
+        ], [
+            'topup_data.*.distinct' => 'Duplicate values are not allowed in top-up fields.',
         ]);
 
-        $game = Game::findOrFail($game->id);
+        $game = Game::with([
+            'categoryVoucher'
+        ])->findOrFail($game->id);
 
+        // dd($game);
         // handle file upload if exists
         $path = $game->logo; // keep old logo by default
         if ($request->hasFile('game_logo')) {
@@ -183,13 +193,14 @@ class AdminController extends Controller
             'name'       => $validated['game_name'],
             'company'    => $validated['game_company'],
             'how_to'     => $validated['how_to'] ?? null,
-            'topup_data' => json_encode($validated['topup_data'] ?? []),
+            'topup_data' => $validated['topup_data'] ?? [],
         ]);
 
         // clear old vouchers
-        foreach ($game->categoryVouchers as $category) {
+        foreach ($game->categoryVoucher as $category) {
             Package::where('category_voucher_id', $category->id)->delete();
         }
+
         CategoryVoucher::where('game_id', $game->id)->delete();
 
         // reinsert vouchers
@@ -280,6 +291,8 @@ class AdminController extends Controller
             'package_id' => 'required|exists:packages,id',
             'vouchers'   => 'required|array|min:1',
             'vouchers.*' => 'required|string|max:255|distinct',
+        ], [
+            'vouchers.*.distinct' => 'Duplicate values are not allowed in voucher code fields.',
         ]);
 
         // insert vouchers

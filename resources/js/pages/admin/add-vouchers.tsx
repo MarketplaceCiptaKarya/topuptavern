@@ -11,7 +11,7 @@ export default function AddVoucher() {
     const props = usePage<SharedData & { package: Package }>().props;
 
     // useForm to handle submission
-    const { post, setData, data, reset } = useForm<{
+    const { post, setData, data, reset, errors } = useForm<{
         vouchers: string[];
         package_id: string | null;
     }>({
@@ -68,11 +68,25 @@ export default function AddVoucher() {
                         <div className="space-y-2">
                             {data.vouchers.length === 0 && <p className="text-sm text-gray-500">No vouchers added yet.</p>}
                             {data.vouchers.map((v, i) => (
-                                <div key={i} className="flex items-center justify-between rounded border p-2">
-                                    <span>{v}</span>
-                                    <Button type="button" size="sm" variant="outline" onClick={() => removeVoucher(i)}>
-                                        <Trash2 /> Delete
-                                    </Button>
+                                <div key={i} className="space-y-1">
+                                    <div className="flex items-center justify-between rounded border p-2">
+                                        <span>{v}</span>
+                                        <Button
+                                            type="button"
+                                            size="sm"
+                                            variant="outline"
+                                            onClick={() => removeVoucher(i)}
+                                        >
+                                            <Trash2 /> Delete
+                                        </Button>
+                                    </div>
+
+                                    {(errors as Record<string, string>)[`vouchers.${i}`] && (
+                                        <p className="text-sm text-red-600">
+                                            {(errors as Record<string, string>)[`vouchers.${i}`]}
+                                        </p>
+                                    )}
+
                                 </div>
                             ))}
                         </div>
