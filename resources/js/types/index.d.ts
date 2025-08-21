@@ -56,26 +56,16 @@ export type PaginatedResponse<T> = {
     total: number;
 };
 
-export type GameGalery = {
-    id: string;
-    game_id: string;
-    media_url: string;
-    type: string;
-    created_at: string;
-    updated_at: string;
-    deleted_at: string | null;
-};
-
 export type Game = {
     id: string;
     logo: string;
     name: string;
     company: string;
     how_to: string;
-    topup_data: string;
+    topup_data: string[];
     created_at: string;
-    galleries: GameGallery[];
-    category_voucher: [];
+    slug: string;
+    category_voucher: CategoryVoucher[];
     updated_at: string;
     deleted_at: string | null;
 };
@@ -96,7 +86,6 @@ export type Package = {
     quantity: number;
     created_at: string;
     updated_at: string;
-    category_voucher: CategoryVoucher | null;
 };
 
 export type Voucher = {
@@ -107,5 +96,5 @@ export type Voucher = {
     created_at: string;
     updated_at: string;
     deleted_at: string | null;
-    package: Package | null;      // 👈 updated to nested structure
+    package: Package | null; // 👈 updated to nested structure
 };

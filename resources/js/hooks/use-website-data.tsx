@@ -95,10 +95,12 @@ export default function useWebsiteData() {
             { text: 'Privacy Policy', url: '#' },
         ],
     };
+    const voucherTitle = 'Vouchers';
 
     return {
         navbarData,
         carouselData,
         footerData,
+        voucherTitle,
     } as const;
 }

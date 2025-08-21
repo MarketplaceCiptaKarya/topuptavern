@@ -8,3 +8,9 @@ export const dateFormatter = new Intl.DateTimeFormat('en-UK', {
     dateStyle: 'short',
     timeStyle: 'short',
 });
+export const titleCaseToSnakeCase = (title: string): string => {
+    return title
+        .toLowerCase()
+        .replace(/\s+/g, '_')
+        .replace(/[^a-z0-9_]/g, '');
+};

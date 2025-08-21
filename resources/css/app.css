@@ -305,3 +305,9 @@
         }
     }
 }
+
+@layer components {
+    .reset-defaults * {
+        all: revert !important;
+    }
+}

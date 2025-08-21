@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Game;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -9,7 +10,11 @@ class WebsiteController extends Controller
 {
     public function home(): Response
     {
-        return Inertia::render('welcome');
+        $games = Game::select(['slug', 'logo', 'name'])->get();
+
+        return Inertia::render('welcome', [
+            'games' => $games,
+        ]);
     }
 
     public function checkTransaction(): Response
@@ -19,9 +24,13 @@ class WebsiteController extends Controller
 
     public function detailVoucher(string $productSlug): Response
     {
+        $game = Game::query()->with([
+            'categoryVoucher',
+            'categoryVoucher.packages'
+        ])->where('slug', $productSlug)->firstOrFail();
+        
         return Inertia::render('detail-voucher', [
-            'title' => 'Voucher 1',
-            'slug' => $productSlug,
+            'game' => $game,
         ]);
     }
 }
