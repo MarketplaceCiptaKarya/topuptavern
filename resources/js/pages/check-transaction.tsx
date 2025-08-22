@@ -1,10 +1,11 @@
+import TransactionStatusBadge from '@/components/transaction-status-badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import MainLayout from '@/layouts/layout';
-import { Head } from '@inertiajs/react';
-import { FileSearch2 } from 'lucide-react';
+import { Head, Link } from '@inertiajs/react';
+import { ArrowRightIcon, FileSearch2 } from 'lucide-react';
 import { useId } from 'react';
 
 export default function CheckTransaction() {
@@ -13,7 +14,7 @@ export default function CheckTransaction() {
         <>
             <Head title="Check Transaction"></Head>
             <MainLayout>
-                <div className="container mx-auto my-4 flex items-center justify-center px-4">
+                <div className="container mx-auto my-4 flex flex-col items-center justify-center gap-4 px-4">
                     <form className="w-full max-w-lg">
                         <Card className="rounded-2xl">
                             <CardHeader className="text-center">
@@ -36,6 +37,33 @@ export default function CheckTransaction() {
                             </CardFooter>
                         </Card>
                     </form>
+                    <Card className="w-full max-w-lg rounded-2xl">
+                        <CardHeader>
+                            <CardTitle>Invoice INV0001</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <div className="flex flex-col gap-3">
+                                <div className="grid grid-cols-[150px_10px_1fr] items-center gap-3">
+                                    <span>Transaction Status</span>
+                                    <span>:</span>
+                                    <TransactionStatusBadge status="success" />
+
+                                    <span>Payment Status</span>
+                                    <span>:</span>
+                                    <TransactionStatusBadge status="success" text="Paid" />
+
+                                    <span className="col-span-3">
+                                        <Button asChild variant="outline" className="group">
+                                            <Link href="#">
+                                                Go to Payment Page
+                                                <ArrowRightIcon className="transition-transform duration-200 group-hover:translate-x-0.5" />
+                                            </Link>
+                                        </Button>
+                                    </span>
+                                </div>
+                            </div>
+                        </CardContent>
+                    </Card>
                 </div>
             </MainLayout>
         </>
