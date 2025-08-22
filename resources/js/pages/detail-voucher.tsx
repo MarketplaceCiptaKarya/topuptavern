@@ -26,7 +26,7 @@ type BuyVoucherForm = {
 export default function DetailVoucher({ game: { name, logo, company, how_to, topup_data, category_voucher } }: DetailVoucherProps) {
     const id = useId();
     const [total, setTotal] = useState<number>(0);
-    const { submit, setData, data } = useForm<BuyVoucherForm>({
+    const { setData, data } = useForm<BuyVoucherForm>({
         email: '',
         selectedVoucherId: '',
         quantity: 1,

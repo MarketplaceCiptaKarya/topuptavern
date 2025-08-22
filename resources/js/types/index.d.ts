@@ -75,7 +75,8 @@ export type CategoryVoucher = {
     name?: string;
     created_at: string;
     updated_at: string;
-    packages: Package[];
+    game: Game | null;
+    packages: Package[] | null;
 };
 
 export type Package = {
