@@ -28,9 +28,14 @@ class WebsiteController extends Controller
             'categoryVoucher',
             'categoryVoucher.packages'
         ])->where('slug', $productSlug)->firstOrFail();
-        
+
         return Inertia::render('detail-voucher', [
             'game' => $game,
         ]);
+    }
+
+    public function staticPage(): Response
+    {
+        return Inertia::render('static-page');
     }
 }
