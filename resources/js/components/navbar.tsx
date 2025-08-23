@@ -1,4 +1,4 @@
-import { SearchInput } from '@/components/search-input';
+import Search from '@/components/search';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Button } from '@/components/ui/button';
 import {
@@ -130,7 +130,7 @@ const Navbar = ({
                         </div>
                     </div>
                     <div className="flex gap-2">
-                        <SearchInput placeholder="Search voucher or game" />
+                        <Search />
                     </div>
                 </nav>
 
@@ -144,7 +144,7 @@ const Navbar = ({
                         <Sheet>
                             <div className="inline-flex items-center gap-2">
                                 <div className="max-w-xs">
-                                    <SearchInput placeholder="Search voucher or game" />
+                                    <Search />
                                 </div>
                                 <SheetTrigger asChild>
                                     <Button variant="outline" size="icon">
