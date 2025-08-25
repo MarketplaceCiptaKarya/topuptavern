@@ -2,9 +2,9 @@ export default function useWebsiteData() {
     const navbarData = {
         logo: {
             url: route('home'),
-            src: 'https://deifkwefumgah.cloudfront.net/shadcnblocks/block/logos/shadcnblockscom-icon.svg',
+            src: '/logo.png',
             alt: 'Top-up tavern logo',
-            title: 'Top-up Tavern',
+            title: '',
         },
         menu: [
             {
@@ -22,23 +22,18 @@ export default function useWebsiteData() {
     const carouselData = [
         {
             id: crypto.randomUUID(),
-            image: 'https://placehold.jp/0f0f0f/ffffff/1920x1080.png?text=placeholder1',
-            alt: 'Placeholder Image 1',
+            image: 'https://fls-9fb5ddfb-a4c6-41d2-bb62-2c1e6ae3e50a.laravel.cloud/carousels/Carousel1.png',
+            alt: 'Carousel 1',
         },
         {
             id: crypto.randomUUID(),
-            image: 'https://placehold.jp/0f0f0f/ffffff/1920x1080.png?text=placeholder2',
-            alt: 'Placeholder Image 1',
+            image: 'https://fls-9fb5ddfb-a4c6-41d2-bb62-2c1e6ae3e50a.laravel.cloud/carousels/Carousel2.png',
+            alt: 'Carousel 2',
         },
         {
             id: crypto.randomUUID(),
-            image: 'https://placehold.jp/0f0f0f/ffffff/1920x1080.png?text=placeholder3',
-            alt: 'Placeholder Image 1',
-        },
-        {
-            id: crypto.randomUUID(),
-            image: 'https://placehold.jp/0f0f0f/ffffff/1920x1080.png?text=placeholder4',
-            alt: 'Placeholder Image 1',
+            image: 'https://fls-9fb5ddfb-a4c6-41d2-bb62-2c1e6ae3e50a.laravel.cloud/carousels/Carousel3.png',
+            alt: 'Carousel 3',
         },
     ];
     const footerData = {
