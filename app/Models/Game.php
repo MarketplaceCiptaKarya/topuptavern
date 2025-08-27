@@ -30,4 +30,9 @@ class Game extends Model
     {
         return $this->hasMany(CategoryVoucher::class, 'game_id');
     }
+
+    public function getLogoAttribute($value)
+    {
+        return \Storage::url($value);
+    }
 }
