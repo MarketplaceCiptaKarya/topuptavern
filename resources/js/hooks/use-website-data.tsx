@@ -22,17 +22,17 @@ export default function useWebsiteData() {
     const carouselData = [
         {
             id: crypto.randomUUID(),
-            image: 'https://fls-9fb5ddfb-a4c6-41d2-bb62-2c1e6ae3e50a.laravel.cloud/carousels/Carousel1.png',
+            image: 'https://fls-9fb5ddfb-a4c6-41d2-bb62-2c1e6ae3e50a.laravel.cloud/carousels/Carousel1.webp',
             alt: 'Carousel 1',
         },
         {
             id: crypto.randomUUID(),
-            image: 'https://fls-9fb5ddfb-a4c6-41d2-bb62-2c1e6ae3e50a.laravel.cloud/carousels/Carousel2.png',
+            image: 'https://fls-9fb5ddfb-a4c6-41d2-bb62-2c1e6ae3e50a.laravel.cloud/carousels/Carousel2.webp',
             alt: 'Carousel 2',
         },
         {
             id: crypto.randomUUID(),
-            image: 'https://fls-9fb5ddfb-a4c6-41d2-bb62-2c1e6ae3e50a.laravel.cloud/carousels/Carousel3.png',
+            image: 'https://fls-9fb5ddfb-a4c6-41d2-bb62-2c1e6ae3e50a.laravel.cloud/carousels/Carousel3.webp',
             alt: 'Carousel 3',
         },
     ];
