@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Game;
+use App\Models\StaticWebsiteDatum;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -33,6 +34,12 @@ class WebsiteController extends Controller
         return Inertia::render('detail-voucher', [
             'game' => $game,
         ]);
+    }
+
+
+    public function staticPage(): Response
+    {
+        return Inertia::render('static-page');
     }
 
     public function search(Request $request)
@@ -66,4 +73,36 @@ class WebsiteController extends Controller
         ]);
     }
 
+    public function contactUs()
+    {
+        $data = StaticWebsiteDatum::where('key', 'contact-us')
+            ->firstOrFail();
+
+        return Inertia::render('static-page', [
+            'title' => 'Contact Us',
+            'content' => $data->value,
+        ]);
+    }
+
+    public function privacyPolicy()
+    {
+        $data = StaticWebsiteDatum::where('key', 'privacy-policy')
+            ->firstOrFail();
+
+        return Inertia::render('static-page', [
+            'title' => 'Privacy Policy',
+            'content' => $data->value,
+        ]);
+    }
+
+    public function termsAndConditions()
+    {
+        $data = StaticWebsiteDatum::where('key', 'terms-and-conditions')
+            ->firstOrFail();
+
+        return Inertia::render('static-page', [
+            'title' => 'Terms And Conditions',
+            'content' => $data->value,
+        ]);
+    }
 }

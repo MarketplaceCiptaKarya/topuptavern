@@ -63,7 +63,7 @@ export default function useWebsiteData() {
                     { text: 'Team', url: '#' },
                     { text: 'Blog', url: '#' },
                     { text: 'Careers', url: '#' },
-                    { text: 'Contact', url: '#' },
+                    { text: 'Contact', url: route('contact-us'), },
                     { text: 'Privacy', url: '#' },
                 ],
             },
@@ -86,8 +86,8 @@ export default function useWebsiteData() {
         ],
         copyright: `© ${new Date().getFullYear()} Top-up Tavern. All rights reserved.`,
         bottomLinks: [
-            { text: 'Terms and Conditions', url: '#' },
-            { text: 'Privacy Policy', url: '#' },
+            { text: 'Terms and Conditions', url: route('terms-and-conditions'), },
+            { text: 'Privacy Policy', url: route('privacy-policy'), },
         ],
     };
     const voucherTitle = 'Vouchers';
