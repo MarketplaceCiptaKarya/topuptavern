@@ -38,7 +38,7 @@ export default function useWebsiteData() {
     ];
     const footerData = {
         logo: {
-            src: 'https://deifkwefumgah.cloudfront.net/shadcnblocks/block/block-1.svg',
+            src: '/logo.png',
             alt: 'Top-up Tavern Logo',
             title: 'Top-up Tavern',
             url: route('home'),
@@ -46,49 +46,23 @@ export default function useWebsiteData() {
         tagline: '',
         menuItems: [
             {
-                title: 'Product',
+                title: 'Menu',
                 links: [
-                    { text: 'Overview', url: '#' },
-                    { text: 'Pricing', url: '#' },
-                    { text: 'Marketplace', url: '#' },
-                    { text: 'Features', url: '#' },
-                    { text: 'Integrations', url: '#' },
-                    { text: 'Pricing', url: '#' },
+                    { text: 'Home', url: route('home') },
+                    { text: 'Check Transaction', url: route('check-transaction') },
                 ],
             },
             {
                 title: 'Company',
                 links: [
-                    { text: 'About', url: '#' },
-                    { text: 'Team', url: '#' },
-                    { text: 'Blog', url: '#' },
-                    { text: 'Careers', url: '#' },
-                    { text: 'Contact', url: route('contact-us'), },
-                    { text: 'Privacy', url: '#' },
-                ],
-            },
-            {
-                title: 'Resources',
-                links: [
-                    { text: 'Help', url: '#' },
-                    { text: 'Sales', url: '#' },
-                    { text: 'Advertise', url: '#' },
-                ],
-            },
-            {
-                title: 'Social',
-                links: [
-                    { text: 'Twitter', url: '#' },
-                    { text: 'Instagram', url: '#' },
-                    { text: 'LinkedIn', url: '#' },
+                    { text: 'Contact Us', url: route('contact-us') },
+                    { text: 'Privacy Policy', url: route('privacy-policy') },
+                    { text: 'Terms and Conditions', url: route('terms-and-conditions') },
                 ],
             },
         ],
         copyright: `© ${new Date().getFullYear()} Top-up Tavern. All rights reserved.`,
-        bottomLinks: [
-            { text: 'Terms and Conditions', url: route('terms-and-conditions'), },
-            { text: 'Privacy Policy', url: route('privacy-policy'), },
-        ],
+        bottomLinks: [],
     };
     const voucherTitle = 'Vouchers';
 
