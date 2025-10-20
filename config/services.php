@@ -35,4 +35,14 @@ return [
         ],
     ],
 
+    'payment' => [
+        'ifortepay' => [
+            'x_version' => env('IFORTEPAY_X_VERSION', ''),
+            'merchant_id' => env('IFORTEPAY_MERCHANT_ID', ''),
+            'secret_unbound_id' => env('IFORTEPAY_SECRET_UNBOUND_ID', ''),
+            'hash_key' => env('IFORTEPAY_HASH_KEY', ''),
+            'base_url' => env('IFORTEPAY_BASE_URL', 'https://api-stage.ifortepay.id/payment-page/payment'),
+        ]
+    ],
+
 ];
