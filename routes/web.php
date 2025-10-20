@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\AdminController;
+use App\Http\Controllers\WebsiteController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -9,7 +11,8 @@ Route::prefix('admin')->group(function () {
         Route::post('/', [\App\Http\Controllers\AdminController::class, 'postIndex'])->name('admin.index.post');
     });
     Route::group(['middleware' => ['auth-with-session']], function () {
-        Route::get('/transactions', [\App\Http\Controllers\AdminController::class, 'transactions'])->name('admin.transactions');
+        Route::get('/transactions', [AdminController::class, 'indexTransactions'])->name('admin.transactions.index');
+        Route::get('/transactions/{id}', [AdminController::class, 'showTransactions'])->name('admin.transactions.show');
 
         Route::get('/games', [\App\Http\Controllers\AdminController::class, 'games'])->name('admin.games');
         Route::get('/games/create', [\App\Http\Controllers\AdminController::class, 'createGame'])->name('admin.games.create');
@@ -38,6 +41,19 @@ Route::get('/', [\App\Http\Controllers\WebsiteController::class, 'home'])->name(
 Route::get('/search', [\App\Http\Controllers\WebsiteController::class, 'search'])->name('search');
 Route::get('/check-transaction', [\App\Http\Controllers\WebsiteController::class, 'checkTransaction'])->name('check-transaction');
 Route::get('/products/{productSlug}', [\App\Http\Controllers\WebsiteController::class, 'detailVoucher'])->name('detail-voucher');
+
+Route::post('/payment', [WebsiteController::class, 'payment'])->name('payment')->withoutMiddleware(['auth']);
+// Route::post('/callback', [WebsiteController::class, 'callback'])->name('callback')->withoutMiddleware(['auth']);
+
+Route::match(['get', 'post'], '/callback', [WebsiteController::class, 'callback'])->name('callback');
+
+
+// Route::prefix('payment')->group(function () {
+//     Route::post('/create', [WebsiteController::class, 'payment'])->name('payment.create');
+//     Route::get('/success', [PaymentController::class, 'success'])->name('payment.success');
+//     Route::get('/cancel', [PaymentController::class, 'cancel'])->name('payment.cancel');
+//     Route::post('/callback', [PaymentController::class, 'callback'])->name('payment.callback');
+// });
 
 // Route::get('/static-page', [\App\Http\Controllers\WebsiteController::class, 'staticPage'])->name('static-page');
 Route::get('/terms-and-conditions', [\App\Http\Controllers\WebsiteController::class, 'termsAndConditions'])->name('terms-and-conditions');
