@@ -14,3 +14,10 @@ export const titleCaseToSnakeCase = (title: string): string => {
         .replace(/\s+/g, '_')
         .replace(/[^a-z0-9_]/g, '');
 };
+export const toTitleCase = (title: string) => {
+    return title
+        .toLowerCase()
+        .split(' ')
+        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(' ');
+};

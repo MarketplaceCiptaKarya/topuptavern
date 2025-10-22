@@ -42,18 +42,9 @@ Route::get('/search', [\App\Http\Controllers\WebsiteController::class, 'search']
 Route::get('/check-transaction', [\App\Http\Controllers\WebsiteController::class, 'checkTransaction'])->name('check-transaction');
 Route::get('/products/{productSlug}', [\App\Http\Controllers\WebsiteController::class, 'detailVoucher'])->name('detail-voucher');
 
-Route::post('/payment', [WebsiteController::class, 'payment'])->name('payment')->withoutMiddleware(['auth']);
-// Route::post('/callback', [WebsiteController::class, 'callback'])->name('callback')->withoutMiddleware(['auth']);
-
-Route::match(['get', 'post'], '/callback', [WebsiteController::class, 'callback'])->name('callback');
-
-
-// Route::prefix('payment')->group(function () {
-//     Route::post('/create', [WebsiteController::class, 'payment'])->name('payment.create');
-//     Route::get('/success', [PaymentController::class, 'success'])->name('payment.success');
-//     Route::get('/cancel', [PaymentController::class, 'cancel'])->name('payment.cancel');
-//     Route::post('/callback', [PaymentController::class, 'callback'])->name('payment.callback');
-// });
+Route::post('/payment', [WebsiteController::class, 'payment'])->name('payment');
+Route::post('/check-transaction', [WebsiteController::class, 'postCheckTransaction'])->name('check-transaction.post');
+Route::post('/callback', [WebsiteController::class, 'callback'])->name('callback')->withoutMiddleware('web');
 
 // Route::get('/static-page', [\App\Http\Controllers\WebsiteController::class, 'staticPage'])->name('static-page');
 Route::get('/terms-and-conditions', [\App\Http\Controllers\WebsiteController::class, 'termsAndConditions'])->name('terms-and-conditions');

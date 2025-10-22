@@ -2,33 +2,31 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Concerns\HasUuids;
 
 class HTrans extends Model
 {
-    use HasFactory, SoftDeletes, HasUuids;
+    use SoftDeletes, HasUuids;
 
     protected $table = 'h_trans';
 
     protected $fillable = [
-        'id',
-        'user_id',
         'external_id',
-        'payment_ref',
         'total_amount',
         'status',
-        'payment_channel',
         'customer_name',
         'customer_email',
         'customer_address',
         'topup_data',
+        'transaction_date',
+        'payment_transaction_id',
+        'payment_url'
     ];
 
     protected $casts = [
-        'topup_data' => 'array', // 👈 JSON column cast to array
+        'topup_data' => 'array',
     ];
 
     public function details()

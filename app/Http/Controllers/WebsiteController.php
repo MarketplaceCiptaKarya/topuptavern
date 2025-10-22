@@ -2,14 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\ProcessPaymentJob;
 use App\Models\DTrans;
-use App\Models\DTransVoucher;
 use App\Models\Game;
 use App\Models\HTrans;
 use App\Models\Package;
 use App\Models\StaticWebsiteDatum;
 use App\Models\Voucher;
 use App\PaymentGateway\PaymentGateway;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
@@ -122,173 +123,52 @@ class WebsiteController extends Controller
 
     public function payment(Request $request)
     {
+        $validated = \Validator::make($request->only([
+            'address',
+            'email',
+            'name',
+            'quantity',
+            'selected_voucher_id',
+            'topup_data',
+        ]), [
+            'address' => 'required|string|max:255',
+            'email' => 'required|email|max:255',
+            'name' => 'required|string|max:100',
+            'quantity' => 'required|integer|min:1',
+            'selected_voucher_id' => 'required|exists:packages,id',
+            'topup_data' => 'nullable|array',
+        ]);
+
+        if ($validated->fails()) {
+            return redirect()->back()->withErrors($validated)->withInput();
+        }
+        $data = $validated->validated();
+
+        $package = Package::query()->find($data['selected_voucher_id']);
+        $quantity = (int)$data['quantity'];
+        $total = $package->price * $quantity;
 
         try {
-            $dummyPayload = [
-                'status' => 'SUCCESS',
-                'external_id' => time(),
-                'email' => $request->email,
-                'name' => $request->name,
-                'address' => $request->address,
-                'total' => $request->total,
-                'topup_data' => $request->topupData ?? [],
-                'package_id' => $request->selectedVoucherId,
-                'quantity' => $request->quantity,
-            ];
+            DB::beginTransaction();
+            $externalId = 'INV-' . str(time()) . '-' . rand(1000, 9999);
+            $orderId = 'ORDER-' . str(time()) . '-' . rand(1000, 9999);
 
-            // You can call callback() directly
-            session(['dummy_payment' => true, 'payload' => $dummyPayload]);
-
-            // Instead of redirecting to payment gateway, go straight to callback
-            return redirect()->route('callback');
-        } catch (\Throwable $th) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to simulate payment.',
-                'error' => $th->getMessage(),
-            ], 500);
-        }
-        // $paymentGatewayPayload = [
-        //     // 'external_id' => $transactionHeader->id,
-        //     // 'order_id' => $transactionHeader->invoice_number,
-        //     // 'amount' => (int)$totalPrice * $currency,
-        //     // 'description' => 'Transaction for ' . $transactionHeader->invoice_number,
-        //     // 'customer_details' => [
-        //     //     'full_name' => $transactionHeader->customer_billing_first_name . ' ' . $transactionHeader->customer_billing_last_name,
-        //     //     'email' => $transactionHeader->customer_contact,
-        //     //     'address' => $transactionHeader->customer_shipping_address,
-        //     // ],
-        //     'external_id' => time(),
-        //     'order_id' => 'ORDER-' . now()->timestamp,
-        //     'amount' => $request->total,
-        //     'description' => 'Transaction for ' . $request->email,
-        //     'customer_details' => [
-        //         'full_name' => $request->name,
-        //         'email' => $request->email,
-        //         'address' => $request->address,
-        //     ],
-        //     'selected_channels' => [
-        //         [
-        //             "channel" => "VA",
-        //             "acq" => "BCA"
-        //         ],
-        //         [
-        //             "channel" => "VA",
-        //             "acq" => "CIMB"
-        //         ],
-        //         [
-        //             "channel" => "VA",
-        //             "acq" => "Permata"
-        //         ],
-        //         [
-        //             "channel" => "VA",
-        //             "acq" => "MANDIRI"
-        //         ],
-        //         [
-        //             "channel" => "VA",
-        //             "acq" => "BNI"
-        //         ],
-        //         [
-        //             "channel" => "VA",
-        //             "acq" => "BRI"
-        //         ],
-        //         [
-        //             "channel" => "VA",
-        //             "acq" => "BNC"
-        //         ],
-        //         [
-        //             "channel" => "VA",
-        //             "acq" => "Finpay"
-        //         ],
-        //         [
-        //             "channel" => "OVO"
-        //         ],
-        //         [
-        //             "channel" => "DANA"
-        //         ],
-        //         [
-        //             "channel" => "LINKAJA"
-        //         ],
-        //         [
-        //             "channel" => "SHOPEEPAY"
-        //         ],
-        //         [
-        //             "channel" => "VIRGO"
-        //         ],
-        //         [
-        //             "channel" => "QRIS",
-        //             "acq" => "NOBU"
-        //         ],
-        //         [
-        //             "channel" => "QR_ONLINE",
-        //             "acq" => "WECHAT_PAY"
-        //         ],
-        //         [
-        //             "channel" => "CARD",
-        //             "acq" => "BRICC"
-        //         ],
-        //         [
-        //             "channel" => "INSTALLMENT",
-        //             "acq" => "BRICC",
-        //             "tenor" => [3, 6, 12]
-        //         ]
-        //     ],
-        //     'callback_url' => route('callback'),
-        //     'success_redirect_url' => route("home"),
-        //     'failed_redirect_url' => route("home"),
-        // ];
-
-        // $paymentGatewayResponse = $this->paymentGateway->redirectPayment($paymentGatewayPayload);
-
-        // if ($paymentGatewayResponse['response_code'] !== "00") {
-        //     return response()->json([
-        //         'success' => false,
-        //         'message' => 'Failed to create transaction. Please try again later.',
-        //         'error' => $paymentGatewayResponse['Message'] ?? 'Unknown error',
-        //     ], 500);
-        // }
-
-        // return Inertia::location($paymentGatewayResponse['data']['payment_url']);
-        // return response()->json([
-        //     'success' => true,
-        //     'redirect_url' => $paymentGatewayResponse['data']['payment_url'],
-        // ]);
-    }
-
-    public function callback(Request $request)
-    {
-        $data = session('dummy_payment') ? session('payload') : $request->all();
-
-        // dd($data);
-
-        if (!isset($data['status']) || $data['status'] !== 'SUCCESS') {
-            return response()->json(['success' => false, 'message' => 'Payment not successful'], 400);
-        }
-
-        DB::beginTransaction();
-        try {
             $hTrans = HTrans::create([
-                'external_id'      => $data['external_id'] ?? ('INV-' . now()->timestamp),
-                'payment_ref'      => $data['payment_ref'] ?? null,
-                'total_amount'     => $data['total'] ?? 0,
-                'status'           => 'PAID',
-                'payment_channel'  => 'DUMMY_GATEWAY',
-                'customer_name'    => $data['name'] ?? 'Unknown',
-                'customer_email'   => $data['email'] ?? null,
-                'customer_address' => $data['address'] ?? null,
-                'topup_data'       => json_encode($data['topup_data'] ?? []),
+                'external_id' => $externalId,
+                'total_amount' => $total,
+                'customer_name' => $data['name'],
+                'customer_email' => $data['email'],
+                'customer_address' => $data['address'],
+                'topup_data' => $data['topup_data'],
+                'transaction_date' => Carbon::now()
             ]);
 
-            $package = Package::findOrFail($data['package_id']);
-            $quantity = (int) $data['quantity'];
-
-            $dTrans = DTrans::create([
-                'h_trans_id'  => $hTrans->id,
-                'package_id'  => $package->id,
-                'qty'         => $quantity,
-                'unit_price'  => $package->price,
-                'subtotal'    => $package->price * $quantity,
-                'status'      => 'WAITING',
+            DTrans::create([
+                'h_trans_id' => $hTrans->id,
+                'package_id' => $package->id,
+                'qty' => $quantity,
+                'unit_price' => $package->price,
+                'subtotal' => $package->price * $quantity,
             ]);
 
             $vouchers = Voucher::where('package_id', $package->id)
@@ -301,27 +181,166 @@ class WebsiteController extends Controller
                 throw new \Exception("Insufficient voucher stock for package: {$package->name}");
             }
 
-            foreach ($vouchers as $voucher) {
-                DTransVoucher::create([
-                    'd_trans_id' => $dTrans->id,
-                    'voucher_id' => $voucher->id,
-                    'assigned_at' => now(),
-                ]);
+            $paymentGatewayPayload = [
+                'external_id' => $externalId,
+                'order_id' => $orderId,
+                'amount' => $total,
+                'description' => 'Transaction for ' . $data['email'],
+                'customer_details' => [
+                    'full_name' => $data['name'],
+                    'email' => $data['email'],
+                    'address' => $data['address'],
+                ],
+                'selected_channels' => [
+                    [
+                        "channel" => "VA",
+                        "acq" => "BCA"
+                    ],
+                    [
+                        "channel" => "VA",
+                        "acq" => "CIMB"
+                    ],
+                    [
+                        "channel" => "VA",
+                        "acq" => "Permata"
+                    ],
+                    [
+                        "channel" => "VA",
+                        "acq" => "MANDIRI"
+                    ],
+                    [
+                        "channel" => "VA",
+                        "acq" => "BNI"
+                    ],
+                    [
+                        "channel" => "VA",
+                        "acq" => "BRI"
+                    ],
+                    [
+                        "channel" => "VA",
+                        "acq" => "BNC"
+                    ],
+                    [
+                        "channel" => "VA",
+                        "acq" => "Finpay"
+                    ],
+                    [
+                        "channel" => "OVO"
+                    ],
+                    [
+                        "channel" => "DANA"
+                    ],
+                    [
+                        "channel" => "LINKAJA"
+                    ],
+                    [
+                        "channel" => "SHOPEEPAY"
+                    ],
+                    [
+                        "channel" => "VIRGO"
+                    ],
+                    [
+                        "channel" => "QRIS",
+                        "acq" => "NOBU"
+                    ],
+                    [
+                        "channel" => "QR_ONLINE",
+                        "acq" => "WECHAT_PAY"
+                    ],
+                    [
+                        "channel" => "CARD",
+                        "acq" => "BRICC"
+                    ],
+                    [
+                        "channel" => "INSTALLMENT",
+                        "acq" => "BRICC",
+                        "tenor" => [3, 6, 12]
+                    ]
+                ],
+                'callback_url' => route('callback'),
+                'success_redirect_url' => route("home"),
+                'failed_redirect_url' => route("home"),
+            ];
 
-                $voucher->update(['used_at' => now()]);
+            $paymentGatewayResponse = $this->paymentGateway->redirectPayment($paymentGatewayPayload);
+
+            if ($paymentGatewayResponse['response_code'] !== "00") {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Failed to create transaction. Please try again later.',
+                    'error' => $paymentGatewayResponse['Message'] ?? 'Unknown error',
+                ], 500);
             }
+
+            $hTrans->update([
+               'payment_url' => $paymentGatewayResponse['data']['payment_url'],
+               'payment_transaction_id' => $paymentGatewayResponse['data']['transaction_id'],
+            ]);
 
             DB::commit();
 
-            return Inertia::render('');
-        } catch (\Throwable $th) {
-            DB::rollBack();
-
-            return response()->json([
-                'success' => false,
-                'message' => 'Transaction failed.',
-                'error' => $th->getMessage(),
-            ], 500);
+            return Inertia::location($paymentGatewayResponse['data']['payment_url']);
+        } catch (\Exception $e) {
+            \DB::rollBack();
+            return redirect()->back()->withErrors([
+                'message' => 'Failed to create transaction. Please try again later.',
+                'error' => $e->getMessage(),
+            ]);
         }
+    }
+
+    public function callback(Request $request)
+    {
+        ProcessPaymentJob::dispatch([
+            'body' => $request->only([
+                'transaction_id',
+                'external_id',
+                'order_id',
+                'transaction_status',
+            ]),
+            'headers' => collect($request->headers->all())
+                ->map(function ($values) {
+                    return implode(', ', $values);
+                })
+                ->toArray(),
+        ]);
+
+        return response()->json(['success' => true], 200);
+    }
+
+    public function postCheckTransaction(Request $request)
+    {
+        $validator = \Validator::make($request->only([
+            'invoice_number'
+        ]), [
+            'invoice_number' => 'required|string|exists:h_trans,external_id',
+        ]);
+
+        if ($validator->fails()) {
+            return redirect()->back()->withErrors($validator)->withInput();
+        }
+
+        $data = $validator->validated();
+
+        $transaction = HTrans::query()
+            ->where('external_id', $data['invoice_number'])
+            ->firstOrFail();
+
+        return Inertia::render('check-transaction', [
+            'invoice' => [
+                'invoce_number' => $transaction->external_id,
+                'transaction_status' => match ($transaction->status) {
+                    'PENDING' => 'pending',
+                    'PAID' => 'success',
+                    default => 'failed',
+                },
+                'payment_status' => match ($transaction->status) {
+                    'PENDING' => 'unpaid',
+                    'PAID' => 'paid',
+                    default => 'expired',
+                },
+                'payment_link' => $transaction->payment_url,
+            ]
+        ]);
     }
 }

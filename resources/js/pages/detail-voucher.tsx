@@ -20,82 +20,45 @@ type BuyVoucherForm = {
     email: string;
     name: string;
     address: string;
-    topupData?: Record<string, string>;
-    selectedVoucherId: string;
+    topup_data?: Record<string, string>;
+    selected_voucher_id: string;
     quantity: number;
-    total: number;
 };
 
 export default function DetailVoucher({ game: { name, logo, company, how_to, topup_data, category_voucher } }: DetailVoucherProps) {
     const id = useId();
+    const emailId = useId();
+    const nameId = useId();
+    const addressId = useId();
+
     const [total, setTotal] = useState<number>(0);
-    const { setData, data, post, processing, errors } = useForm<BuyVoucherForm>({
+    const { setData, data, post, errors } = useForm<BuyVoucherForm>({
         email: '',
         name: '',
         address: '',
-        selectedVoucherId: '',
+        selected_voucher_id: '',
         quantity: 1,
-        total: total,
     });
 
     useEffect(() => {
-        const voucherPrice = category_voucher.flatMap((category) => category.packages).find((pkg) => pkg.id === data.selectedVoucherId)?.price || 0;
+        const voucherPrice =
+            category_voucher.flatMap((category) => category.packages).find((pkg) => pkg?.id === data.selected_voucher_id)?.price || 0;
         setTotal(voucherPrice * data.quantity);
-
-        const newTotal = voucherPrice * data.quantity;
-        setTotal(newTotal);
-        setData("total", newTotal);
-    }, [data.selectedVoucherId, data.quantity, category_voucher]);
+    }, [data.selected_voucher_id, data.quantity, category_voucher]);
 
     const toggleSelectedId = (id: string) => {
-        if (data.selectedVoucherId === id) {
-            setData('selectedVoucherId', '');
+        if (data.selected_voucher_id === id) {
+            setData('selected_voucher_id', '');
         } else {
-            setData('selectedVoucherId', id);
+            setData('selected_voucher_id', id);
         }
     };
 
     const purchaseVoucher = async () => {
-        // try {
-        //     const response = await fetch(route('payment'), {
-        //         method: 'POST',
-        //         headers: {
-        //             'Accept': 'application/json',
-        //             'Content-Type': 'application/json',
-        //             'X-CSRF-TOKEN': document
-        //                 .querySelector('meta[name="csrf-token"]')
-        //                 ?.getAttribute('content') ?? '',
-        //         },
-        //     });
-
-        //     const result = await response.json();
-        //     if (result.success && result.url) {
-        //         window.location.href = result.url; // Redirect to iFortepay page
-        //     } else {
-        //         alert(result.message || 'Payment initialization failed');
-        //     }
-        // } catch (error) {
-        //     console.error(error);
-        //     alert('Error connecting to payment gateway');
-        // }
-        console.log(data);
         post(route('payment'), {
             preserveScroll: true,
-            onSuccess: (page) => {
-                const url = page.props?.url; // assuming backend returns url in props
-                if (url) {
-                    window.location.href = url;
-                } else {
-                    alert('Payment URL not found');
-                }
-            },
-            onError: (err) => {
-                console.error('Payment error:', err);
-                alert('Payment failed. Please check your data or try again.');
-            },
         });
     };
-
 
     return (
         <>
@@ -142,10 +105,10 @@ export default function DetailVoucher({ game: { name, logo, company, how_to, top
                                         </Label>
                                         <Input
                                             id={id + '-' + index + '-' + topupData}
-                                            value={data?.topupData?.[titleCaseToSnakeCase(topupData)] ?? ''}
+                                            value={data?.topup_data?.[titleCaseToSnakeCase(topupData)] ?? ''}
                                             onChange={(e) =>
-                                                setData('topupData', {
-                                                    ...data.topupData,
+                                                setData('topup_data', {
+                                                    ...data.topup_data,
                                                     [titleCaseToSnakeCase(topupData)]: e.target.value,
                                                 })
                                             }
@@ -160,47 +123,48 @@ export default function DetailVoucher({ game: { name, logo, company, how_to, top
                     <div className="w-full">
                         <Card className="px-6 py-4">
                             <div className="flex flex-wrap items-start gap-4">
-                                <div className="flex-1 min-w-[250px] space-y-2">
-                                    <Label htmlFor="email" className="gap-1">
+                                <div className="min-w-[250px] flex-1 space-y-2">
+                                    <Label htmlFor={emailId} className="gap-1">
                                         Email <span className="text-destructive">*</span>
                                     </Label>
                                     <Input
-                                        id="email"
+                                        id={emailId}
                                         value={data.email}
                                         onChange={(e) => setData('email', e.target.value)}
                                         type="email"
                                         placeholder="Email address"
                                         required
                                     />
-                                    <p className="text-xs text-muted-foreground">
-                                        Email digunakan untuk pengiriman voucher dan bukti transaksi
-                                    </p>
+                                    <p className="text-xs text-muted-foreground">Email digunakan untuk pengiriman voucher dan bukti transaksi</p>
+                                    <span className="text-sm text-destructive">{errors.email}</span>
                                 </div>
-                                <div className="flex-1 min-w-[200px] space-y-2">
-                                    <Label htmlFor="name" className="gap-1">
+                                <div className="min-w-[200px] flex-1 space-y-2">
+                                    <Label htmlFor={nameId} className="gap-1">
                                         Name <span className="text-destructive">*</span>
                                     </Label>
                                     <Input
-                                        id="name"
+                                        id={nameId}
                                         value={data.name}
                                         onChange={(e) => setData('name', e.target.value)}
                                         type="text"
                                         placeholder="Name"
                                         required
                                     />
+                                    <span className="text-sm text-destructive">{errors.name}</span>
                                 </div>
-                                <div className="flex-1 min-w-[200px] space-y-2">
-                                    <Label htmlFor="address" className="gap-1">
+                                <div className="min-w-[200px] flex-1 space-y-2">
+                                    <Label htmlFor={addressId} className="gap-1">
                                         Address <span className="text-destructive">*</span>
                                     </Label>
                                     <Input
-                                        id="address"
+                                        id={addressId}
                                         value={data.address}
                                         onChange={(e) => setData('address', e.target.value)}
                                         type="text"
                                         placeholder="Address"
                                         required
                                     />
+                                    <span className="text-sm text-destructive">{errors.address}</span>
                                 </div>
                             </div>
                         </Card>
@@ -221,14 +185,14 @@ export default function DetailVoucher({ game: { name, logo, company, how_to, top
                                             <span className="font-semibold">{category.name}</span>
                                         </div>
                                     )}
-                                    {category.packages.map((pkg) => (
+                                    {category.packages?.map((pkg) => (
                                         <VoucherCard
                                             key={pkg.id}
                                             voucherName={pkg.name}
                                             voucherPrice={pkg.price}
                                             onClick={() => toggleSelectedId(pkg.id)}
-                                            isSelected={data.selectedVoucherId === pkg.id}
-                                            disabled={false}
+                                            isSelected={data.selected_voucher_id === pkg.id}
+                                            disabled={pkg.quantity < data.quantity || pkg.quantity < 1}
                                         />
                                     ))}
                                 </Fragment>
@@ -240,6 +204,9 @@ export default function DetailVoucher({ game: { name, logo, company, how_to, top
                                 onChange={(qty) => setData('quantity', qty)}
                                 label="Purchase Quantity"
                                 minValue={1}
+                                maxValue={
+                                    category_voucher.flatMap((pkg) => pkg.packages).find((p) => p?.id === data.selected_voucher_id)?.quantity || 9999
+                                }
                                 locale="id-ID"
                             />
                             <span className="text-lg font-bold">Total: {currencyFormatter.format(total)}</span>

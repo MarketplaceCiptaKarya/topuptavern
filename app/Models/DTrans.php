@@ -2,26 +2,22 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Concerns\HasUuids;
 
 class DTrans extends Model
 {
-    use HasFactory, SoftDeletes, HasUuids;
+    use SoftDeletes, HasUuids;
 
     protected $table = 'd_trans';
 
     protected $fillable = [
-        'id',
         'h_trans_id',
         'package_id',
         'qty',
         'unit_price',
         'subtotal',
-        'status',
-        'delivered_at',
     ];
 
     public function header()
