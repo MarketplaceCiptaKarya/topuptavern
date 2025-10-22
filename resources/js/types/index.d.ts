@@ -80,6 +80,7 @@ export type CategoryVoucher = {
 };
 
 export type Package = {
+    category_voucher: any;
     id: string;
     name: string;
     price: number;

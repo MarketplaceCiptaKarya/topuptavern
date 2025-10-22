@@ -110,38 +110,6 @@ export default function Show({ transaction }: { transaction: Transaction }) {
                     </div>
                 </CardContent>
             </Card>
-
-            <Card className="mt-6">
-                <CardHeader>
-                    <CardTitle>Voucher</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <div className="w-full overflow-x-auto">
-                        <Table className="min-w-full table-fixed">
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead className="w-1/3">Package</TableHead>
-                                    <TableHead className="w-1/3">Voucher Code</TableHead>
-                                    <TableHead className="w-1/3">Assigned At</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {transaction.d_trans.flatMap((d) =>
-                                    d.d_trans_vouchers.map((v) => (
-                                        <TableRow key={v.voucher_id}>
-                                            <TableCell>{d.package?.name}</TableCell>
-                                            <TableCell>{v.voucher.voucher_code}</TableCell>
-                                            <TableCell>
-                                                {new Date(v.assigned_at).toLocaleString()}
-                                            </TableCell>
-                                        </TableRow>
-                                    ))
-                                )}
-                            </TableBody>
-                        </Table>
-                    </div>
-                </CardContent>
-            </Card>
         </>
     );
 }
