@@ -2,13 +2,13 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import AdminLayout from '@/layouts/admin-layout';
-import { Package, SharedData } from '@/types';
+import { Package, SharedData, Voucher } from '@/types';
 import { router, useForm, usePage } from '@inertiajs/react';
 import { Plus, Save, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 
 export default function AddVoucher() {
-    const props = usePage<SharedData & { package: Package }>().props;
+    const props = usePage<SharedData & { package: Package, vouchers: Voucher[] }>().props;
 
     // useForm to handle submission
     const { post, setData, data, reset, errors } = useForm<{
@@ -99,6 +99,26 @@ export default function AddVoucher() {
                     </CardFooter>
                 </Card>
             </form>
+            <Card className="mt-6">
+                <CardHeader>
+                    <CardTitle>Existing Vouchers</CardTitle>
+                    <CardDescription>These vouchers are already saved for this package.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <div className="space-y-2">
+                        {props.vouchers.length === 0 ? (
+                            <p className="text-sm text-gray-500">No vouchers found for this package.</p>
+                        ) : (
+                            props.vouchers.map((voucher, i) => (
+                                <div key={i} className="flex items-center justify-between rounded border p-2">
+                                    <span>{typeof voucher === 'string' ? voucher : voucher.voucher_code}</span>
+                                </div>
+                            ))
+                        )}
+                    </div>
+                </CardContent>
+            </Card>
+
         </AdminLayout>
     );
 }

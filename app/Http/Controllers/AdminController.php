@@ -9,6 +9,7 @@ use App\Models\HTrans;
 use App\Models\Package;
 use App\Models\Product;
 use App\Models\ProductGallery;
+use App\Models\Voucher;
 use Database\Seeders\CategorySeeder;
 use Database\Seeders\StaticWebsiteDatumSeeder;
 use Illuminate\Http\Request;
@@ -303,8 +304,10 @@ class AdminController extends Controller
     public function editVoucher(Package $package)
     {
         $package->load(['categoryVoucher.game']);
+        $vouchers = Voucher::where('package_id', $package->id)->get();
         return Inertia::render('admin/add-vouchers', [
             'package' => $package,
+            'vouchers' => $vouchers,
         ]);
     }
 
