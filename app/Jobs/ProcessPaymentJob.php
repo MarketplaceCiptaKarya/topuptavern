@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Mail\InvoiceMail;
 use App\Models\DTrans;
 use App\Models\DTransVoucher;
 use App\Models\HTrans;
@@ -99,6 +100,15 @@ class ProcessPaymentJob implements ShouldQueue
 
             $package->save();
             $transaction->save();
+
+            \Mail::to($transaction->customer_email)->queue(new InvoiceMail([
+                'name' => $transaction->customer_name,
+                'invoice_number' => $transaction->external_id,
+                'invoice_date' => $transaction->transaction_date,
+                'invoice_amount' => $transaction->total_amount,
+                'invoice_status' => $transaction->status,
+                'purchased_code' => $vouchers->only('voucher_code')->toArray(),
+            ]));
 
             \DB::commit();
         }
