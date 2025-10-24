@@ -22,7 +22,7 @@ const data = {
             items: [
                 {
                     title: 'View Transactions',
-                    url: route('admin.transactions'),
+                    url: route('admin.transactions.index'),
                 },
             ],
         },

@@ -4,12 +4,34 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import MainLayout from '@/layouts/layout';
-import { Head, Link } from '@inertiajs/react';
+import { toTitleCase } from '@/lib/global';
+import { Head, useForm } from '@inertiajs/react';
 import { ArrowRightIcon, FileSearch2 } from 'lucide-react';
 import { useId } from 'react';
 
-export default function CheckTransaction() {
+type CheckTransactionForm = {
+    invoice_number: string;
+};
+
+type CheckTransactionProps = {
+    invoice?: {
+        invoce_number: string;
+        transaction_status: 'pending' | 'success' | 'failed';
+        payment_status: 'unpaid' | 'paid' | 'expired';
+        payment_link: string;
+    };
+};
+
+export default function CheckTransaction({ invoice }: CheckTransactionProps) {
     const id = useId();
+    const { post, data, setData } = useForm<CheckTransactionForm>({
+        invoice_number: '',
+    });
+
+    const handleSubmit = () => {
+        post(route('check-transaction.post'));
+    };
+
     return (
         <>
             <Head title="Check Transaction"></Head>
@@ -25,45 +47,58 @@ export default function CheckTransaction() {
                                 <div className="flex flex-col gap-6">
                                     <div className="grid gap-2">
                                         <Label htmlFor={id}>Invoice Number</Label>
-                                        <Input id={id} type="text" placeholder="ex. INV00001" required />
+                                        <Input
+                                            id={id}
+                                            type="text"
+                                            placeholder="ex. INV-1111111111-1111"
+                                            value={data.invoice_number}
+                                            onChange={(e) => setData('invoice_number', e.target.value)}
+                                            required
+                                        />
                                     </div>
                                 </div>
                             </CardContent>
                             <CardFooter className="flex-col gap-2">
-                                <Button type="submit" variant="outline" className="w-full">
+                                <Button type="button" onClick={() => handleSubmit()} variant="outline" className="w-full">
                                     <FileSearch2 />
                                     Search Invoice
                                 </Button>
                             </CardFooter>
                         </Card>
                     </form>
-                    <Card className="w-full max-w-lg rounded-2xl">
-                        <CardHeader>
-                            <CardTitle>Invoice INV0001</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="flex flex-col gap-3">
-                                <div className="grid grid-cols-[150px_10px_1fr] items-center gap-3">
-                                    <span>Transaction Status</span>
-                                    <span>:</span>
-                                    <TransactionStatusBadge status="success" />
+                    {invoice && (
+                        <>
+                            <Card className="w-full max-w-lg rounded-2xl">
+                                <CardHeader>
+                                    <CardTitle>Invoice {invoice.invoce_number}</CardTitle>
+                                </CardHeader>
+                                <CardContent>
+                                    <div className="flex flex-col gap-3">
+                                        <div className="grid grid-cols-[150px_10px_1fr] items-center gap-3">
+                                            <span>Transaction Status</span>
+                                            <span>:</span>
+                                            <TransactionStatusBadge status={invoice.transaction_status} />
 
-                                    <span>Payment Status</span>
-                                    <span>:</span>
-                                    <TransactionStatusBadge status="success" text="Paid" />
+                                            <span>Payment Status</span>
+                                            <span>:</span>
+                                            <TransactionStatusBadge status={invoice.transaction_status} text={toTitleCase(invoice.payment_status)} />
 
-                                    <span className="col-span-3">
-                                        <Button asChild variant="outline" className="group">
-                                            <Link href="#">
-                                                Go to Payment Page
-                                                <ArrowRightIcon className="transition-transform duration-200 group-hover:translate-x-0.5" />
-                                            </Link>
-                                        </Button>
-                                    </span>
-                                </div>
-                            </div>
-                        </CardContent>
-                    </Card>
+                                            {invoice.payment_status === 'unpaid' && (
+                                                <span className="col-span-3">
+                                                    <Button asChild variant="outline" className="group">
+                                                        <a href={invoice.payment_link} rel="noopener noreferrer" target="_blank">
+                                                            Go to Payment Page
+                                                            <ArrowRightIcon className="transition-transform duration-200 group-hover:translate-x-0.5" />
+                                                        </a>
+                                                    </Button>
+                                                </span>
+                                            )}
+                                        </div>
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        </>
+                    )}
                 </div>
             </MainLayout>
         </>

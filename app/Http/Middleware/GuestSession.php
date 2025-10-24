@@ -16,7 +16,7 @@ class GuestSession
     public function handle(Request $request, Closure $next): Response
     {
         if ($request->session()->has('admin-code-id')) {
-            return redirect()->route('admin.transactions');
+            return redirect()->route('admin.transactions.index');
         }
 
         return $next($request);

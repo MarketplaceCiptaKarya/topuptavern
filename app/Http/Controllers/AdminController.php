@@ -5,9 +5,11 @@ namespace App\Http\Controllers;
 use App\Models\CategoryVoucher;
 use App\Models\Code;
 use App\Models\Game;
+use App\Models\HTrans;
 use App\Models\Package;
 use App\Models\Product;
 use App\Models\ProductGallery;
+use App\Models\Voucher;
 use Database\Seeders\CategorySeeder;
 use Database\Seeders\StaticWebsiteDatumSeeder;
 use Illuminate\Http\Request;
@@ -23,11 +25,33 @@ class AdminController extends Controller
         return Inertia::render('admin/login');
     }
 
-    public function transactions()
+    public function indexTransactions()
     {
+        $transactions = HTrans::with([
+            'dTrans.package',
+            'dTrans.dTransVouchers.voucher'
+        ])
+            ->latest()
+            ->paginate(10);
+
         return Inertia::render(
-            'admin/transactions'
+            'admin/transactions/index',
+            [
+                'transactions' => $transactions,
+            ]
         );
+    }
+
+    public function showTransactions($id)
+    {
+        $transaction = HTrans::with([
+            'dTrans.package',
+            'dTrans.dTransVouchers.voucher',
+        ])->findOrFail($id);
+
+        return Inertia::render('admin/transactions/show', [
+            'transaction' => $transaction,
+        ]);
     }
 
     public function postIndex(Request $request)
@@ -57,7 +81,7 @@ class AdminController extends Controller
         //     ]);
         // }
         // Session::put('admin-code-id', 1);
-        return to_route('admin.transactions');
+        return to_route('admin.transactions.index');
     }
 
     public function games(Request $request)
@@ -280,8 +304,10 @@ class AdminController extends Controller
     public function editVoucher(Package $package)
     {
         $package->load(['categoryVoucher.game']);
+        $vouchers = Voucher::where('package_id', $package->id)->get();
         return Inertia::render('admin/add-vouchers', [
             'package' => $package,
+            'vouchers' => $vouchers,
         ]);
     }
 

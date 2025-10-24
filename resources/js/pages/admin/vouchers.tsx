@@ -23,7 +23,7 @@ export default function ShowVouchers() {
     const [input, setInput] = useState<string>(search);
     const initialLoad = useRef<boolean>(true);
     const debouncedValue = useDebouncedValue(input, 500);
-    console.log('packages', packages.data);
+    // console.log('packages', packages.data);
     useEffect(() => {
         if (initialLoad.current) {
             initialLoad.current = false;
